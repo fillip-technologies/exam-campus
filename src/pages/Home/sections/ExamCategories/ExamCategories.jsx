@@ -1,0 +1,74 @@
+import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+import ExamLogo from '@/components/common/ExamLogo'
+import { competitiveMenu } from '@/data/competitiveMenu'
+
+const SHOWN = 5
+
+export default function ExamCategories() {
+  return (
+    <section id="exams" aria-labelledby="categories-title" className="scroll-mt-24 border-t border-slate-200 bg-surface">
+      <div className="mx-auto w-full px-4 py-12 sm:px-6 sm:py-14 lg:px-12 lg:py-16">
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
+          <h2 id="categories-title" className="text-3xl font-semibold tracking-tight text-primary-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+            Popular Exams
+          </h2>
+          <p className="max-w-md text-lg leading-relaxed text-slate-500">
+            Pick your exam to see its test series, free mock tests, previous year papers and exam details.
+          </p>
+        </div>
+
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 xl:grid-cols-4">
+          {competitiveMenu.map((c) => {
+            const Icon = c.icon
+            return (
+              <li key={c.id} className="flex flex-col rounded-md border border-slate-200 bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-9 place-items-center rounded-md bg-primary-50 text-primary-700 ring-1 ring-inset ring-primary-100">
+                    <Icon className="size-[18px]" aria-hidden="true" />
+                  </span>
+                  <h3 className="text-lg font-semibold text-ink">{c.label}</h3>
+                </div>
+
+                <ul className="mt-4 divide-y divide-slate-100 border-t border-slate-100">
+                  {c.exams.slice(0, SHOWN).map((e) => (
+                    <li key={e.slug}>
+                      <Link
+                        to={`/exams/${e.slug}`}
+                        className="group flex items-center gap-3 py-2.5 text-[0.95rem] text-slate-700 transition-colors hover:text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-600"
+                      >
+                        <ExamLogo org={e.org} name={e.name} className="size-8" />
+                        <span className="min-w-0 flex-1 truncate">{e.name}</span>
+                        <ArrowRight className="size-4 text-slate-300 transition duration-150 group-hover:translate-x-0.5 group-hover:text-primary-600" aria-hidden="true" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href={`#exams/${c.id}`}
+                  className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-primary-700 hover:text-primary-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                >
+                  View all {c.label}{/exams$/i.test(c.label) ? "" : " exams"}
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </a>
+              </li>
+            )
+          })}
+        <li className="flex">
+          <a
+            href="#all-exams"
+            className="group flex w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-primary-200 bg-white/60 p-5 text-center transition-colors hover:border-primary-600 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+          >
+            <span className="text-lg font-semibold text-ink">Explore all exams</span>
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700">
+              Browse the full exam directory
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </span>
+          </a>
+        </li>
+        </ul>
+      </div>
+    </section>
+  )
+}
