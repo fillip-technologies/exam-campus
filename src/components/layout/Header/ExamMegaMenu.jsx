@@ -6,11 +6,11 @@ import ExamLogo from '@/components/common/ExamLogo'
 
 /**
  * Two-part mega menu: categories on the left, the exams of the selected category on the right.
- * menu: [{ id, label, exams: [{ name, org, slug }] }]  linkFor(exam) returns the route each exam opens.
+ * menu: [{ id, label, exams: [{ name, org, slug, href }] }]  linkFor(exam) returns the route each exam opens (null = no page yet).
  */
 export default function ExamMegaMenu({ id, idPrefix, menu, label, footer, linkFor, onNavigate }) {
   const [activeId, setActiveId] = useState(menu[0].id)
-  const active = menu.find((c) => c.id === activeId)
+  const active = menu.find((c) => c.id === activeId) ?? menu[0]
 
   const onKeyDown = (e) => {
     const i = menu.findIndex((c) => c.id === activeId)
@@ -75,16 +75,24 @@ export default function ExamMegaMenu({ id, idPrefix, menu, label, footer, linkFo
           <ul className="grid grid-cols-3 gap-3">
             {active.exams.map((e) => (
               <li key={e.slug}>
-                <Link
-                  to={linkFor(e)}
-                  onClick={onNavigate}
-                  className="group flex items-center gap-3 rounded-sm border border-slate-200 bg-white px-3.5 py-3 transition-colors duration-150 hover:border-primary-300 hover:bg-primary-50/60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-600"
-                >
-                  <ExamLogo org={e.org} name={e.name} />
-                  <span className="min-w-0 truncate text-sm font-semibold text-ink group-hover:text-primary-700">
-                    {e.name}
-                  </span>
-                </Link>
+                {linkFor(e) ? (
+                  <Link
+                    to={linkFor(e)}
+                    onClick={onNavigate}
+                    className="group flex items-center gap-3 rounded-sm border border-slate-200 bg-white px-3.5 py-3 transition-colors duration-150 hover:border-primary-300 hover:bg-primary-50/60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-600"
+                  >
+                    <ExamLogo org={e.org} name={e.name} />
+                    <span className="min-w-0 truncate text-sm font-semibold text-ink group-hover:text-primary-700">
+                      {e.name}
+                    </span>
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-3 rounded-sm border border-dashed border-slate-200 bg-white px-3.5 py-3" title="Exam page coming soon">
+                    <ExamLogo org={e.org} name={e.name} />
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-600">{e.name}</span>
+                    <span className="shrink-0 text-[0.65rem] font-semibold uppercase tracking-wide text-slate-400">Soon</span>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

@@ -1,59 +1,26 @@
 import { useState } from 'react'
 import { Minus, Plus } from 'lucide-react'
+import SmartLink from '@/components/common/SmartLink'
 
-// PLACEHOLDER answers: review each one against ExamCampus's real policies before launch.
-const faqs = [
-  {
-    q: 'What is a test series?',
-    a: 'A test series is a set of mock tests designed around a specific exam. It helps you practise the paper pattern, manage your time and see how you are performing before the real exam.',
-  },
-  {
-    q: 'What is included in an ExamCampus test series?',
-    a: 'Each test series includes full-length mock tests, sectional tests, topic-wise tests and previous year papers, along with a detailed analysis after every test.',
-  },
-  {
-    q: 'How do I take a test?',
-    a: 'After enrolling, log in to your account and open the test from My Tests. The test runs online in a timed exam-style interface that works on your phone, tablet or computer.',
-  },
-  {
-    q: 'Can I try a test before buying a test series?',
-    a: 'Yes. You can take free mock tests for popular exams to experience the platform before you purchase a test series.',
-  },
-  {
-    q: 'In which languages are the tests available?',
-    a: 'Tests are available in Hindi and English. The language options for each test series are shown on its details page.',
-  },
-  {
-    q: 'Will I get solutions and performance analysis?',
-    a: 'Yes. After submitting a test you can see your score, accuracy, time taken, subject-wise performance and detailed solutions for every question.',
-  },
-  {
-    q: 'How long is a test series valid?',
-    a: 'The validity depends on the test series or plan you choose and is shown on its details page before you buy.',
-  },
-  {
-    q: 'How can I contact support?',
-    a: 'You can reach our support team through the Contact Us page. We will help you with enrolment, access to your tests and any other questions.',
-  },
-]
-
-export default function Faq() {
+export default function Faq({ section }) {
+  const { anchorId, title, subtitle, ctas, data } = section
+  const faqs = data?.faqs ?? []
+  const cta = ctas[0]
   const [open, setOpen] = useState(0)
 
   return (
-    <section id="faq" aria-labelledby="faq-title" className="scroll-mt-24 border-t border-slate-200 bg-white">
+    <section id={anchorId ?? undefined} aria-labelledby="faq-title" className="scroll-mt-24 border-t border-slate-200 bg-white">
       <div className="mx-auto grid w-full gap-8 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1fr_2fr] lg:gap-16 lg:px-12 lg:py-16">
         <div>
           <h2 id="faq-title" className="text-3xl font-semibold tracking-tight text-primary-900 sm:text-4xl lg:leading-[1.1]">
-            Frequently Asked Questions
+            {title}
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-slate-500">
-            Can&rsquo;t find what you are looking for? Visit our{' '}
-            <a href="#contact" className="font-semibold text-primary-700 underline-offset-4 hover:underline">
-              Contact Us
-            </a>{' '}
-            page.
-          </p>
+          {subtitle && <p className="mt-4 text-lg leading-relaxed text-slate-500">{subtitle}</p>}
+          {cta?.href && (
+            <SmartLink href={cta.href} className="mt-3 inline-block font-semibold text-primary-700 underline-offset-4 hover:underline">
+              {cta.label}
+            </SmartLink>
+          )}
         </div>
 
         <ul className="divide-y divide-slate-200 border-y border-slate-200">

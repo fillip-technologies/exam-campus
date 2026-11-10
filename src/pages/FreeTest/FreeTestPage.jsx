@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '@/context/auth/useAuth'
-import { getFreeTestBySlug } from '@/lib/products'
+import { useFreeTest } from '@/api/public'
+import { pageState } from '@/components/common/LoadState'
 import { formatMinutes } from '@/lib/format'
-import NotFoundPage from '@/pages/NotFound/NotFoundPage'
 
 /**
  * Free test start page (/free-test/:slug). Only usable when logged in: logged-out visitors are asked to log in.
@@ -11,9 +11,10 @@ import NotFoundPage from '@/pages/NotFound/NotFoundPage'
  */
 export default function FreeTestPage() {
   const { slug } = useParams()
-  const { user, isLoggedIn, openLogin } = useAuth()
-  // memoised: the lookup can build a new object, which would re-trigger the effect below on every render
-  const test = useMemo(() => getFreeTestBySlug(slug), [slug])
+  const { user, isLoggedIn, ready, openLogin } = useAuth()
+  // GET /public/free-tests/:slug resolves free test slug -> exam slug -> class slug
+  const query = useFreeTest(slug)
+  const test = query.data
 
   useEffect(() => {
     document.title = 'Free Test | ExamCampus'
@@ -21,10 +22,11 @@ export default function FreeTestPage() {
 
   // Direct visits while logged out get the login popup straight away.
   useEffect(() => {
-    if (test && !isLoggedIn) openLogin({ reason: `Please log in to start ${test.title}.` })
-  }, [test, isLoggedIn, openLogin])
+    if (test && ready && !isLoggedIn) openLogin({ reason: `Please log in to start ${test.title}.` })
+  }, [test, ready, isLoggedIn, openLogin])
 
-  if (!test) return <NotFoundPage />
+  const state = pageState(query)
+  if (state) return state
 
   return (
     <section className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">

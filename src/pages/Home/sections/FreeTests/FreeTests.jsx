@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
 import AuthLink from '@/components/common/AuthLink'
 import ExamLogo from '@/components/common/ExamLogo'
-import { freeTestFilters, freeTests } from '@/data/freeTests'
+import SmartLink from '@/components/common/SmartLink'
 
-const MAX_ROWS = 5
+const ALL = '__all'
+const defaultHighlights = ['Full-length paper in the real exam format', 'Instant score and answer review']
 
 function Meta({ questions, minutes }) {
   return (
@@ -14,8 +15,9 @@ function Meta({ questions, minutes }) {
   )
 }
 
-function FeaturedTest({ test }) {
-  const { exam, org, questions, minutes, slug } = test
+function FeaturedTest({ test, highlights }) {
+  const { exam, org, questions, minutes, href } = test
+  const points = test.highlights?.length ? test.highlights : highlights
   return (
     <div className="flex h-full flex-col rounded-md border border-primary-200 bg-primary-50 p-6 sm:p-8">
       <div className="flex items-center justify-between">
@@ -32,7 +34,7 @@ function FeaturedTest({ test }) {
       </p>
 
       <ul className="mt-5 space-y-2 text-sm text-slate-600">
-        {['Full-length paper in the real exam format', 'Instant score and answer review'].map((t) => (
+        {points.map((t) => (
           <li key={t} className="flex items-center gap-2">
             <Check className="size-4 shrink-0 text-primary-600" aria-hidden="true" />
             {t}
@@ -41,7 +43,7 @@ function FeaturedTest({ test }) {
       </ul>
 
       <AuthLink
-        to={`/free-test/${slug}`}
+        to={href}
         reason={`Please log in to start the ${exam} free mock test.`}
         className="group mt-8 inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-accent-500 px-6 py-3 text-base font-bold text-primary-900 transition-all hover:-translate-y-px hover:bg-accent-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 sm:mt-auto sm:pt-3"
       >
@@ -53,10 +55,10 @@ function FeaturedTest({ test }) {
 }
 
 function TestRow({ test }) {
-  const { exam, org, questions, minutes, slug } = test
+  const { exam, org, questions, minutes, href } = test
   return (
     <AuthLink
-      to={`/free-test/${slug}`}
+      to={href}
       reason={`Please log in to start the ${exam} free mock test.`}
       className="group flex items-center gap-4 px-2 py-4 transition-colors hover:bg-primary-50/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-600 sm:px-4"
     >
@@ -77,50 +79,57 @@ function TestRow({ test }) {
   )
 }
 
-export default function FreeTests() {
-  const [filter, setFilter] = useState('All')
-  const visible = filter === 'All' ? freeTests : freeTests.filter((t) => t.category === filter)
-  const [featured, ...rest] = visible
-  const rows = rest.slice(0, MAX_ROWS)
+/** Free tests: one featured card + a short list, filtered by the categories ticked "show in free-test filter". */
+export default function FreeTests({ section }) {
+  const { anchorId, title, subtitle, ctas, config = {}, data } = section
+  const [filter, setFilter] = useState(ALL)
+  const filters = [{ id: ALL, label: config.allFilterLabel ?? 'All' }, ...data.filters]
+  const visible = filter === ALL ? data.items : data.items.filter((t) => t.categorySlug === filter)
+  // the admin's "featured" test leads; otherwise the first one
+  const featured = visible.find((t) => t.featured) ?? visible[0]
+  const rows = visible.filter((t) => t !== featured).slice(0, config.maxRows ?? 5)
+  const cta = ctas[0]
 
   return (
-    <section id="free-tests" aria-labelledby="free-title" className="scroll-mt-24 border-t border-slate-200 bg-surface">
+    <section id={anchorId ?? undefined} aria-labelledby="free-title" className="scroll-mt-24 border-t border-slate-200 bg-surface">
       <div className="mx-auto w-full px-4 py-12 sm:px-6 sm:py-14 lg:px-12 lg:py-16">
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
           <h2 id="free-title" className="text-3xl font-semibold tracking-tight text-primary-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-            Start Practising for Free.
+            {title}
           </h2>
-          <p className="max-w-md text-lg leading-relaxed text-slate-500">
-            Take a free mock test, experience the ExamCampus test platform and start preparing for your exam today.
-          </p>
+          {subtitle && <p className="max-w-md text-lg leading-relaxed text-slate-500">{subtitle}</p>}
         </div>
 
         {/* Filter */}
         <div className="-mx-4 mt-10 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0 lg:mt-12">
           <div role="group" aria-label="Filter free tests by category" className="flex min-w-max gap-2">
-            {freeTestFilters.map((f) => (
+            {filters.map((f) => (
               <button
-                key={f}
+                key={f.id}
                 type="button"
-                aria-pressed={filter === f}
-                onClick={() => setFilter(f)}
+                aria-pressed={filter === f.id}
+                onClick={() => setFilter(f.id)}
                 className={`rounded-sm px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-600 ${
-                  filter === f
+                  filter === f.id
                     ? 'bg-primary-800 text-white'
                     : 'text-slate-600 ring-1 ring-inset ring-slate-300 hover:bg-white hover:text-primary-700'
                 }`}
               >
-                {f}
+                {f.label}
               </button>
             ))}
           </div>
         </div>
 
         <div key={filter} className="mt-6 grid animate-fade-in gap-6 lg:grid-cols-[1fr_1.35fr]">
-          <FeaturedTest test={featured} />
+          {featured ? (
+            <FeaturedTest test={featured} highlights={config.featuredHighlights?.length ? config.featuredHighlights : defaultHighlights} />
+          ) : (
+            <p className="rounded-md border border-dashed border-slate-300 bg-white px-5 py-8 text-slate-500">No free tests in this category yet.</p>
+          )}
 
           <div className="flex flex-col">
-            {rows.length > 0 ? (
+            {!featured ? null : rows.length > 0 ? (
               <ul className="divide-y divide-slate-200 rounded-md border border-slate-200 bg-white">
                 {rows.map((t) => (
                   <li key={t.slug}>
@@ -130,17 +139,19 @@ export default function FreeTests() {
               </ul>
             ) : (
               <p className="rounded-md border border-dashed border-slate-300 bg-white px-5 py-8 text-slate-500">
-                This is the only free test in this category for now. Explore all free tests to try more exams.
+                {config.emptyRowsMessage ?? 'This is the only free test in this category for now.'}
               </p>
             )}
 
-            <a
-              href="#all-free-tests"
-              className="group mt-5 inline-flex items-center gap-2 self-start text-base font-bold text-primary-700 hover:text-primary-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 lg:mt-auto lg:self-end lg:pt-5"
-            >
-              Explore All Free Tests
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </a>
+            {cta?.href && (
+              <SmartLink
+                href={cta.href}
+                className="group mt-5 inline-flex items-center gap-2 self-start text-base font-bold text-primary-700 hover:text-primary-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 lg:mt-auto lg:self-end lg:pt-5"
+              >
+                {cta.label}
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              </SmartLink>
+            )}
           </div>
         </div>
       </div>

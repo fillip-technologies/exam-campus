@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { getClassBySlug } from '@/data/classes'
-import NotFoundPage from '@/pages/NotFound/NotFoundPage'
+import { useClass } from '@/api/public'
+import { pageState } from '@/components/common/LoadState'
 import QuickInfoBar from '@/components/hub/QuickInfoBar'
 import StickySectionNav from '@/components/hub/StickySectionNav'
 import TestSeriesSection from '@/components/hub/TestSeriesSection'
@@ -28,20 +28,23 @@ const buildNavItems = (cls) =>
   ].filter(Boolean)
 
 /**
- * Master Academic Class Hub page. Everything on it comes from the class object found by the
- * URL slug (/academic/:slug), so a new class page only needs a new data file in src/data/classes.
+ * Master Academic Class Hub page. Everything on it comes from GET /public/classes/:slug, so a new class
+ * page is created (and published) in the admin panel.
  */
 export default function ClassDetailsPage() {
   const { slug } = useParams()
-  const cls = getClassBySlug(slug)
+  const query = useClass(slug)
+  const cls = query.data
 
   useEffect(() => {
     if (cls) document.title = `${cls.name} Test Series: Chapter-wise, Unit & Full Syllabus Tests | ExamCampus`
   }, [cls])
 
-  if (!cls) return <NotFoundPage />
+  const state = pageState(query)
+  if (state) return state
 
   const { name } = cls
+  const primarySeries = cls.testSeries?.find((s) => s.isPrimary) ?? cls.testSeries?.[0]
 
   return (
     <>
@@ -58,7 +61,7 @@ export default function ClassDetailsPage() {
         />
         <SubjectsGrid className={name} subjects={cls.subjects} />
         <HowItWorks steps={cls.howItWorks} />
-        <InlineSeriesCta examName={name} series={cls.testSeries?.[0]} text={`Practise every ${name} chapter with timed online tests.`} />
+        <InlineSeriesCta examName={name} series={primarySeries} text={`Practise every ${name} chapter with timed online tests.`} />
         <ClassSyllabus className={name} subjects={cls.subjects} />
         <FreeMockTest examName={name} tests={cls.freeTests} />
         <FaqSection examName={name} faqs={cls.faqs} />

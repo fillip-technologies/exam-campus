@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { getExamBySlug } from '@/data/exams'
-import NotFoundPage from '@/pages/NotFound/NotFoundPage'
+import { useExam } from '@/api/public'
+import { pageState } from '@/components/common/LoadState'
 import ExamHero from './components/ExamHero'
 import QuickInfoBar from '@/components/hub/QuickInfoBar'
 import StickySectionNav from '@/components/hub/StickySectionNav'
@@ -35,21 +35,23 @@ const buildNavItems = (exam) =>
   ].filter(Boolean)
 
 /**
- * Master Exam Hub page. Everything on it comes from the exam object found by the URL slug
- * (/exams/:slug), so a new exam page only needs a new data file registered in src/data/exams.
+ * Master Exam Hub page. Everything on it comes from GET /public/exams/:slug, so a new exam page is
+ * created (and published) in the admin panel.
  */
 export default function ExamDetailsPage() {
   const { slug } = useParams()
-  const exam = getExamBySlug(slug)
+  const query = useExam(slug)
+  const exam = query.data
 
   useEffect(() => {
-    if (exam) document.title = `${exam.name} Exam Hub: Test Series, Syllabus, Pattern | ExamCampus`
+    if (exam) document.title = exam.seo?.title && exam.seo.title !== exam.name ? exam.seo.title : `${exam.name} Exam Hub: Test Series, Syllabus, Pattern | ExamCampus`
   }, [exam])
 
-  if (!exam) return <NotFoundPage />
+  const state = pageState(query)
+  if (state) return state
 
   const { name } = exam
-  const primarySeries = exam.testSeries?.[0]
+  const primarySeries = exam.testSeries?.find((s) => s.isPrimary) ?? exam.testSeries?.[0]
 
   return (
     <>

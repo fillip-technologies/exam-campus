@@ -1,16 +1,17 @@
-import { heroCategories } from '@/data/heroExplorer'
+import { Circle } from 'lucide-react'
+import { iconFor } from '@/lib/icons'
 
 /**
  * Exam category picker: a seven tiles per row on desktop, a three-column grid on mobile. Click the selected one again to clear it, a two-column grid on mobile.
  * Selecting a category filters the test series below the carousel.
  */
-export default function HeroCategories({ activeId, onChange }) {
+export default function HeroCategories({ categories, activeId, onChange }) {
   return (
     <nav aria-label="Exam categories">
       <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-7 lg:gap-3">
-        {heroCategories.map((c) => {
+        {categories.map((c) => {
           const selected = c.id === activeId
-          const Icon = c.icon
+          const Icon = iconFor(c.icon, Circle)
           return (
             <li key={c.id}>
               <button

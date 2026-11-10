@@ -26,7 +26,7 @@ function SeriesCard({ series, examName, org, freeTestCount, toneIndex }) {
   const hasDiscount = originalPrice && originalPrice > price
   const off = hasDiscount ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0
 
-  const stats = series.stats ?? [
+  const stats = series.stats?.length ? series.stats : [
     totalTests != null && { label: 'Total tests', value: totalTests },
     fullLengthTests > 0 && { label: 'Full-length mocks', value: fullLengthTests },
     sectionalTests > 0 && { label: 'Sectional tests', value: sectionalTests },

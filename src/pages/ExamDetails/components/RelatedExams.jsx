@@ -2,9 +2,8 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, LayoutGrid } from 'lucide-react'
 import ExamLogo from '@/components/common/ExamLogo'
 import SectionShell from '@/components/hub/SectionShell'
-import { hasExamPage } from '@/data/exams'
 
-/** exams: [{ slug, name, fullName?, org }]  A card links to its hub only when that exam page exists. */
+/** exams: [{ slug, name, fullName?, org, href }]  A card links to its hub only when that exam page is published (href). */
 export default function RelatedExams({ exams = [] }) {
   if (!exams.length) return null
 
@@ -12,7 +11,7 @@ export default function RelatedExams({ exams = [] }) {
     <SectionShell icon={LayoutGrid} id="related-exams" title="Explore Related Exams">
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {exams.map((e) => {
-          const live = hasExamPage(e.slug)
+          const live = Boolean(e.href)
           const inner = (
             <>
               <ExamLogo org={e.org} name={e.name} className="size-11" />
@@ -31,7 +30,7 @@ export default function RelatedExams({ exams = [] }) {
           return (
             <li key={e.slug}>
               {live ? (
-                <Link to={`/exams/${e.slug}`} className={`${cls} hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600`}>
+                <Link to={e.href} className={`${cls} hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600`}>
                   {inner}
                 </Link>
               ) : (

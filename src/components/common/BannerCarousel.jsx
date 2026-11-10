@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
-import { hasExamPage } from '@/data/exams'
+import SmartLink from './SmartLink'
+import { trackBannerClick } from '@/api/public'
 
-const INTERVAL = 5000
+const DEFAULT_INTERVAL = 5000
 
 /**
  * Auto-rotating banner carousel (scroll-snap). One banner fills the width by default.
- * banners: [{ src, alt, slug }]  A banner opens /exams/<slug>#test-series when that hub exists.
+ * banners: [{ id, src, mobileSrc?, alt, href }] from the admin's Banners. Clicks are counted (fire and forget).
  * Pauses on hover/focus, has a pause button, and never auto-plays for users who prefer reduced motion.
  */
-export default function BannerCarousel({ banners, label = 'Featured test series', slideClass = 'basis-full' }) {
+export default function BannerCarousel({ banners, label = 'Featured test series', slideClass = 'basis-full', interval = DEFAULT_INTERVAL }) {
   const trackRef = useRef(null)
   const hoverRef = useRef(false)
   const [active, setActive] = useState(0)
@@ -38,12 +38,12 @@ export default function BannerCarousel({ banners, label = 'Featured test series'
   }
 
   useEffect(() => {
-    if (!playing || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!playing || !interval || banners.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const t = setInterval(() => {
       if (!hoverRef.current && !document.hidden) go(1)
-    }, INTERVAL)
+    }, interval)
     return () => clearInterval(t)
-  }, [playing, go])
+  }, [playing, go, interval, banners.length])
 
   const goTo = (i) => {
     const { el, step, max } = metrics()
@@ -72,16 +72,24 @@ export default function BannerCarousel({ banners, label = 'Featured test series'
 
         <div ref={trackRef} onScroll={onScroll} className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth">
           {banners.map((b, i) => {
-            const img = <img src={b.src} alt={b.alt} loading={i === 0 ? 'eager' : 'lazy'} className="aspect-video w-full object-cover" />
+            const img = (
+              <picture>
+                {b.mobileSrc && <source media="(max-width: 639px)" srcSet={b.mobileSrc} />}
+                <img src={b.src} alt={b.alt} loading={i === 0 ? 'eager' : 'lazy'} className="aspect-video w-full object-cover" />
+              </picture>
+            )
             const aria = `${i + 1} of ${banners.length}`
-            return hasExamPage(b.slug) ? (
-              <Link key={b.src} to={`/exams/${b.slug}#test-series`} aria-label={aria} className={slideCls}>
+            return (
+              <SmartLink
+                key={b.id ?? b.src}
+                href={b.href}
+                aria-label={aria}
+                className={slideCls}
+                onClick={() => trackBannerClick(b.id)}
+                fallback={<div key={b.id ?? b.src} className={slideCls}>{img}</div>}
+              >
                 {img}
-              </Link>
-            ) : (
-              <a key={b.src} href="#test-series" aria-label={aria} className={slideCls}>
-                {img}
-              </a>
+              </SmartLink>
             )
           })}
         </div>

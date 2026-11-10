@@ -14,18 +14,12 @@ export default function NotFoundPage() {
         The page you are looking for is coming soon, or the link is incorrect. You can explore the pages that are available.
       </p>
       <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <Link
-          to="/exams/sbi-po"
+        <a
+          href="/#exams"
           className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-6 py-3 font-bold text-white hover:bg-primary-700"
         >
-          Open SBI PO Exam Hub
-        </Link>
-        <Link
-          to="/academic/class-6"
-          className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-6 py-3 font-bold text-white hover:bg-primary-700"
-        >
-          Open Class 6 Hub
-        </Link>
+          Explore exams
+        </a>
         <Link
           to="/"
           className="inline-flex items-center justify-center rounded-lg px-6 py-3 font-bold text-primary-700 ring-1 ring-inset ring-primary-200 hover:bg-primary-50"

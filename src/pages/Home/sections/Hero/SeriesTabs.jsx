@@ -1,8 +1,9 @@
 import { useRef } from 'react'
-import { seriesTabs } from '@/data/heroExplorer'
+import { Circle } from 'lucide-react'
+import { iconFor } from '@/lib/icons'
 
 /** Pill-style tabs (WAI-ARIA tabs pattern) that scroll horizontally on small screens. Panel id: `st-panel`. */
-export default function SeriesTabs({ activeId, onChange }) {
+export default function SeriesTabs({ tabs: seriesTabs, activeId, onChange }) {
   const refs = useRef({})
 
   const select = (id, focus = false) => {
@@ -26,7 +27,7 @@ export default function SeriesTabs({ activeId, onChange }) {
       <div role="tablist" aria-label="Test series type" onKeyDown={onKeyDown} className="flex min-w-max gap-2 sm:min-w-0 sm:flex-wrap">
         {seriesTabs.map((t) => {
           const selected = t.id === activeId
-          const Icon = t.icon
+          const Icon = iconFor(t.icon, Circle)
           return (
             <button
               key={t.id}

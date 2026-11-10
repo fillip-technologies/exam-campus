@@ -1,10 +1,17 @@
 import EnrollButton from '@/components/common/EnrollButton'
 import { useState } from 'react'
-import { Heart } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { BarChart3, ClipboardCheck, Heart, History, Timer } from 'lucide-react'
 import ExamLogo from './ExamLogo'
-import { hasExamPage } from '@/data/exams'
-import { freeTests } from '@/data/freeTests'
+import SmartLink from './SmartLink'
+import { iconFor } from '@/lib/icons'
+
+/** Decorative strip on generated posters (cards without artwork). */
+const defaultPosterIcons = [
+  { icon: ClipboardCheck, label: 'Mock Tests' },
+  { icon: Timer, label: 'Timed' },
+  { icon: BarChart3, label: 'Analysis' },
+  { icon: History, label: 'PYPs' },
+]
 
 const tones = [
   { bg: 'bg-primary-800', text: 'text-white', sub: 'text-accent-400', strip: 'bg-white/10 text-primary-100' },
@@ -13,7 +20,7 @@ const tones = [
 ]
 
 /** Poster artwork. Pass `image` on the product to show real artwork instead. */
-export function Poster({ exam, org, subtitle, validity, image, posterIcons, toneIndex }) {
+export function Poster({ exam, org, subtitle, validity, image, posterIcons = defaultPosterIcons, toneIndex }) {
   const t = tones[toneIndex % tones.length]
   return (
     <div className={`relative aspect-video overflow-hidden rounded-sm ${t.bg}`}>
@@ -47,18 +54,18 @@ export function Poster({ exam, org, subtitle, validity, image, posterIcons, tone
   )
 }
 
-// Total of the test counts in the card features ("30+" counts as 30), and the free tests for this exam.
-const totalTests = (features) => features.reduce((n, f) => n + (parseInt(f.value, 10) || 0), 0)
-
 const rupees = (n) => `₹${n.toLocaleString('en-IN')}`
 
-/** Product card: poster, chips, key features, price and actions. Used for courses and test series. */
+/**
+ * Product card: poster, chips, key features, price and actions. `product` is a card from GET /public/series
+ * (counts are numbers; the "+" is display formatting).
+ */
 export default function CourseCard({ product, toneIndex = 0 }) {
-  const { exam, org, slug, title, subtitle, language, tag, validity, price, mrp, features, posterIcons, offer, image } = product
+  const { exam, org, slug, title, subtitle, language, tag, validity, price, mrp, features = [], offer, image, examHref, href } = product
   const [saved, setSaved] = useState(false)
-  const off = Math.round(((mrp - price) / mrp) * 100)
-  const total = totalTests(features)
-  const free = freeTests.filter((t) => t.slug === slug).length
+  const off = product.discountPercent ?? (mrp > 0 ? Math.round(((mrp - price) / mrp) * 100) : 0)
+  const total = product.totalTests ?? features.reduce((n, f) => n + (Number(f.value) || 0), 0)
+  const free = product.freeTests ?? 0
 
   return (
     <article className="flex h-full flex-col rounded-md border border-slate-200 bg-white p-3 transition-shadow duration-200 hover:shadow-lg hover:shadow-primary-900/10">
@@ -68,14 +75,13 @@ export default function CourseCard({ product, toneIndex = 0 }) {
         subtitle={subtitle}
         validity={validity}
         image={image}
-        posterIcons={posterIcons}
         toneIndex={toneIndex}
       />
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-sm bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{language}</span>
-          <span className="rounded-sm bg-primary-50 px-2 py-1 text-xs font-bold text-primary-700">{tag}</span>
+          {language && <span className="rounded-sm bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{language}</span>}
+          {tag && <span className="rounded-sm bg-primary-50 px-2 py-1 text-xs font-bold text-primary-700">{tag}</span>}
         </div>
         <button
           type="button"
@@ -94,36 +100,36 @@ export default function CourseCard({ product, toneIndex = 0 }) {
       </p>
 
       <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[0.8rem] text-slate-600">
-        {features.map(({ icon: Icon, value, label }) => (
+        {features.map(({ icon, value, label }) => {
+          const Icon = iconFor(icon, ClipboardCheck)
+          return (
           <li key={label} className="flex items-start gap-1.5">
             <Icon className="mt-0.5 size-3.5 shrink-0 text-primary-600" aria-hidden="true" />
             <span>
-              <span className="font-semibold text-ink">{value}</span> {label}
+              <span className="font-semibold text-ink">{typeof value === 'number' ? `${value}+` : value}</span> {label}
             </span>
           </li>
-        ))}
+          )
+        })}
       </ul>
 
       <div className="mt-4 flex flex-wrap items-baseline gap-x-2 border-t border-slate-100 pt-4">
         <span className="text-2xl font-bold text-ink">{rupees(price)}</span>
-        <span className="text-sm text-slate-400 line-through">{rupees(mrp)}</span>
-        <span className="text-sm font-semibold text-accent-700">({off}% off)</span>
+        {mrp > price && <span className="text-sm text-slate-400 line-through">{rupees(mrp)}</span>}
+        {off > 0 && <span className="text-sm font-semibold text-accent-700">({off}% off)</span>}
       </div>
       {offer && (
         <p className="mt-2 w-fit rounded-sm bg-accent-100 px-2 py-1 text-xs font-bold text-accent-700">{offer}</p>
       )}
 
       <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
-        {hasExamPage(slug) ? (
-          <Link to={`/exams/${slug}`} className="inline-flex items-center justify-center rounded-md px-3 py-2.5 text-sm font-bold text-primary-700 ring-1 ring-inset ring-primary-200 transition-colors hover:bg-primary-50 hover:ring-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
-            View Details
-          </Link>
-        ) : (
-          <a href={`#test-series/${slug}`} className="inline-flex items-center justify-center rounded-md px-3 py-2.5 text-sm font-bold text-primary-700 ring-1 ring-inset ring-primary-200 transition-colors hover:bg-primary-50 hover:ring-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
-            View Details
-          </a>
-        )}
-        <EnrollButton to={`/enroll/${slug}`} what={title} className="inline-flex items-center justify-center rounded-md bg-accent-500 px-3 py-2.5 text-sm font-bold text-primary-900 transition-colors hover:bg-accent-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+        <SmartLink
+          href={examHref ? `${examHref}#test-series` : `#test-series/${slug}`}
+          className="inline-flex items-center justify-center rounded-md px-3 py-2.5 text-sm font-bold text-primary-700 ring-1 ring-inset ring-primary-200 transition-colors hover:bg-primary-50 hover:ring-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+        >
+          View Details
+        </SmartLink>
+        <EnrollButton to={href ?? `/enroll/${slug}`} what={title} className="inline-flex items-center justify-center rounded-md bg-accent-500 px-3 py-2.5 text-sm font-bold text-primary-900 transition-colors hover:bg-accent-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
           Enroll Now
         </EnrollButton>
       </div>

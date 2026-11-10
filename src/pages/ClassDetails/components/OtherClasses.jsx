@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, LayoutGrid } from 'lucide-react'
 import SectionShell from '@/components/hub/SectionShell'
-import { hasClassPage } from '@/data/classes'
 
-/** classes: [{ slug, name, stage }]  A card links to its hub only when that class page exists. */
+/** classes: [{ slug, name, stage, href }]  A card links to its hub only when that class page is published (href). */
 export default function OtherClasses({ classes = [] }) {
   if (!classes.length) return null
 
@@ -11,7 +10,7 @@ export default function OtherClasses({ classes = [] }) {
     <SectionShell icon={LayoutGrid} id="other-classes" title="Explore Other Classes">
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {classes.map((c) => {
-          const live = hasClassPage(c.slug)
+          const live = Boolean(c.href)
           const inner = (
             <>
               <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-md bg-primary-50 text-lg font-extrabold text-primary-700 ring-1 ring-inset ring-primary-100">
@@ -32,7 +31,7 @@ export default function OtherClasses({ classes = [] }) {
           return (
             <li key={c.slug}>
               {live ? (
-                <Link to={`/academic/${c.slug}`} className={`${cls} hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600`}>
+                <Link to={c.href} className={`${cls} hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600`}>
                   {inner}
                 </Link>
               ) : (

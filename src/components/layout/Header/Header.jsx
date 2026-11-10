@@ -1,25 +1,30 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/auth/useAuth'
-import { ArrowRight, Menu, Search, X } from 'lucide-react'
+import { ArrowRight, LayoutDashboard, Menu, Search, X } from 'lucide-react'
 import AnnouncementBar from './AnnouncementBar'
 import Logo from '@/components/common/Logo'
 import NavItem from './NavItem'
 import DropdownPanel from './DropdownPanel'
-import { AcademicMega } from './MegaPanels'
-import CompetitiveMega from './CompetitiveMega'
-import PyqMega from './PyqMega'
+import { ColumnsMega } from './MegaPanels'
+import CategoryMega from './CategoryMega'
+import SmartLink from '@/components/common/SmartLink'
+import { iconFor } from '@/lib/icons'
 import SearchPanel from './SearchPanel'
 import SearchCombobox from '@/components/common/SearchCombobox'
 import MobileDrawer from './MobileDrawer'
-import { navItems } from '@/data/nav'
+import { useLayout } from '@/api/public'
+import { isStaff } from '@/services/authService'
 
 export default function Header() {
   const [openId, setOpenId] = useState(null)
   // The active nav item follows the current page: Academic hubs vs Exam hubs.
   const { pathname } = useLocation()
   const { user, isLoggedIn, logout, openLogin } = useAuth()
-  const activeId = pathname.startsWith('/academic') ? 'academic' : pathname.startsWith('/exams') ? 'competitive' : null
+  const { data: layout } = useLayout()
+  const navItems = (layout?.nav ?? []).map((n) => ({ ...n, icon: iconFor(n.icon) }))
+  const header = layout?.site.header
+  const activeId = navItems.find((n) => n.activePathPrefix && pathname.startsWith(n.activePathPrefix))?.id ?? null
   const [searchOpen, setSearchOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -82,7 +87,7 @@ export default function Header() {
       onMouseEnter={cancelClose}
       onMouseLeave={scheduleClose}
     >
-      <AnnouncementBar />
+      <AnnouncementBar announcement={layout?.announcement} />
 
       <div
         className={`border-b bg-white/95 backdrop-blur transition-shadow duration-200 ${
@@ -92,11 +97,24 @@ export default function Header() {
         }`}
       >
         <div className="mx-auto flex h-16 items-center justify-between gap-4 md:h-[4.5rem] px-4 sm:px-6 lg:px-12">
-          <Logo />
+          <Logo site={layout?.site} />
 
           <nav aria-label="Primary" className="hidden xl:block">
             <ul className="flex items-center gap-1">
-              {navItems.map((item) => (
+              {navItems.map((item) =>
+                item.type === 'link' ? (
+                  <li key={item.id}>
+                    <SmartLink
+                      href={item.href}
+                      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-semibold 2xl:px-3 focus-visible:outline-2 focus-visible:outline-accent-600 ${
+                        activeId === item.id ? 'text-primary-800' : 'text-slate-600 hover:text-primary-800'
+                      }`}
+                    >
+                      {item.icon && <item.icon className="size-4 text-accent-700" aria-hidden="true" />}
+                      {item.label}
+                    </SmartLink>
+                  </li>
+                ) : (
                 <NavItem
                   key={item.id}
                   item={item}
@@ -109,7 +127,8 @@ export default function Header() {
                     <DropdownPanel item={item} onNavigate={navigateFrom(item.id)} />
                   )}
                 </NavItem>
-              ))}
+                ),
+              )}
             </ul>
           </nav>
 
@@ -131,6 +150,15 @@ export default function Header() {
             </button>
             {isLoggedIn ? (
               <div className="hidden items-center gap-2 sm:flex">
+                {isStaff(user) && (
+                  <Link
+                    to="/admin"
+                    className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold text-primary-800 ring-1 ring-inset ring-primary-200 transition-colors hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-accent-600"
+                  >
+                    <LayoutDashboard className="size-4" aria-hidden="true" />
+                    Admin
+                  </Link>
+                )}
                 <span className="hidden max-w-[8rem] truncate text-sm font-semibold text-primary-800 2xl:inline">Hi, {user.name.split(" ")[0]}</span>
                 <button
                   type="button"
@@ -142,16 +170,16 @@ export default function Header() {
               </div>
             ) : (
               <button type="button" onClick={() => openLogin()} className="hidden whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold text-primary-800 ring-1 ring-inset ring-slate-300 transition-colors hover:bg-primary-50 hover:ring-primary-200 focus-visible:outline-2 focus-visible:outline-accent-600 sm:inline-block">
-                Login
+                {header?.loginLabel ?? 'Login'}
               </button>
             )}
-            <a
-              href="#start"
+            <SmartLink
+              href={header?.cta?.href ?? '#start'}
               className="group hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-accent-500 px-4 py-2 text-sm font-bold text-primary-900 shadow-sm transition-all hover:-translate-y-px hover:bg-accent-400 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-600 sm:inline-flex"
             >
-              Start Learning
+              {header?.cta?.label ?? 'Start Learning'}
               <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </a>
+            </SmartLink>
             <button
               type="button"
               aria-label="Open menu"
@@ -167,21 +195,20 @@ export default function Header() {
 
         {/* Phones: the search bar is always visible under the logo row (no search icon). */}
         <div className="px-4 pb-3 pt-1 md:hidden">
-          <SearchCombobox size="sm" />
+          <SearchCombobox size="sm" placeholder={layout?.site.searchPlaceholder} />
         </div>
 
         {current?.type === 'mega' && (
           <div className="hidden xl:block">
-            {current.id === "academic" && <AcademicMega id={`panel-${current.id}`} onNavigate={navigateFrom(current.id)} />}
-            {current.id === "competitive" && <CompetitiveMega id={`panel-${current.id}`} onNavigate={navigateFrom(current.id)} />}
-            {current.id === "pyq" && <PyqMega id={`panel-${current.id}`} onNavigate={navigateFrom(current.id)} />}
+            {current.columns && <ColumnsMega id={`panel-${current.id}`} item={current} onNavigate={navigateFrom(current.id)} />}
+            {current.categories?.length > 0 && <CategoryMega id={`panel-${current.id}`} item={current} onNavigate={navigateFrom(current.id)} />}
           </div>
         )}
 
-        {searchOpen && <SearchPanel id="header-search" onClose={() => setSearchOpen(false)} />}
+        {searchOpen && <SearchPanel id="header-search" suggestions={layout?.search.suggestions ?? []} onClose={() => setSearchOpen(false)} />}
       </div>
 
-      {drawerOpen && <MobileDrawer onClose={() => setDrawerOpen(false)} />}
+      {drawerOpen && <MobileDrawer layout={layout} navItems={navItems} onClose={() => setDrawerOpen(false)} />}
     </header>
   )
 }

@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '@/context/auth/useAuth'
-import { getProductBySlug } from '@/lib/products'
+import { useProduct } from '@/api/public'
+import { pageState } from '@/components/common/LoadState'
 import { formatRupees } from '@/lib/format'
-import NotFoundPage from '@/pages/NotFound/NotFoundPage'
 
 /**
  * Enrollment page (/enroll/:slug). It is only usable when logged in: logged-out visitors are asked to log in.
@@ -11,9 +11,10 @@ import NotFoundPage from '@/pages/NotFound/NotFoundPage'
  */
 export default function EnrollPage() {
   const { slug } = useParams()
-  const { user, isLoggedIn, openLogin } = useAuth()
-  // memoised: the lookup can build a new object, which would re-trigger the effect below on every render
-  const product = useMemo(() => getProductBySlug(slug), [slug])
+  const { user, isLoggedIn, ready, openLogin } = useAuth()
+  // GET /public/products/:slug resolves pass -> series slug -> exam slug -> class slug
+  const query = useProduct(slug)
+  const product = query.data
 
   useEffect(() => {
     document.title = 'Enroll | ExamCampus'
@@ -21,10 +22,11 @@ export default function EnrollPage() {
 
   // Direct visits while logged out get the login popup straight away.
   useEffect(() => {
-    if (product && !isLoggedIn) openLogin({ reason: `Please log in to enroll in ${product.title}.` })
-  }, [product, isLoggedIn, openLogin])
+    if (product && ready && !isLoggedIn) openLogin({ reason: `Please log in to enroll in ${product.title}.` })
+  }, [product, ready, isLoggedIn, openLogin])
 
-  if (!product) return <NotFoundPage />
+  const state = pageState(query)
+  if (state) return state
 
   return (
     <section className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">

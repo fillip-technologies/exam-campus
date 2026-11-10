@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Clock } from 'lucide-react'
 
-/* Placeholder mock-test screen. Looks like the real exam window; only the
-   timer, answer selection and Previous/Next work. */
+/* Sample mock-test screen. Looks like the real exam window; only the
+   timer, answer selection and Previous/Next work. The content comes from the
+   EXAM_EXPERIENCE section's `config.preview` (admin panel); these are the fallbacks. */
 
-const questions = [
+const defaultQuestions = [
   { n: 11, text: 'Find the next number in the series: 3, 6, 12, 24, ?', options: ['36', '42', '48', '60'] },
   { n: 12, text: 'A train 150 m long passes a pole in 15 seconds. What is the speed of the train in km/h?', options: ['36', '40', '45', '54'] },
   { n: 13, text: 'The simple interest on ₹8,000 for 3 years is ₹2,400. What is the rate of interest per annum?', options: ['8%', '10%', '12%', '15%'] },
 ]
 
-const sections = ['English Language', 'Quantitative Aptitude', 'Reasoning Ability']
-const letters = ['A', 'B', 'C', 'D']
-const total = 100
+const defaultSections = ['English Language', 'Quantitative Aptitude', 'Reasoning Ability']
+const letters = ['A', 'B', 'C', 'D', 'E', 'F']
 const paletteSize = 30
 
 // Fixed sample progress for the palette (other numbers are "not visited")
@@ -46,9 +46,15 @@ function useCountdown(startSeconds) {
   return `${pad(Math.floor(left / 3600))}:${pad(Math.floor((left % 3600) / 60))}:${pad(left % 60)}`
 }
 
-export default function TestPreview() {
-  const [index, setIndex] = useState(1)
-  const [answers, setAnswers] = useState({ 12: 'A' })
+export default function TestPreview({ preview = {} }) {
+  const questions = preview.questions?.length ? preview.questions : defaultQuestions
+  const sections = preview.sections?.length ? preview.sections : defaultSections
+  const total = preview.totalQuestions ?? 100
+  const title = preview.title ?? 'SBI PO Prelims · Full Mock 12'
+  const meta = preview.meta ?? `${total} questions · 60 minutes`
+  const marking = preview.marking ?? { correct: '+1', wrong: '−0.25' }
+  const [index, setIndex] = useState(Math.min(1, questions.length - 1))
+  const [answers, setAnswers] = useState({})
   const time = useCountdown(42 * 60 + 18)
   const q = questions[index]
 
@@ -63,8 +69,8 @@ export default function TestPreview() {
       {/* Top bar */}
       <div className="flex items-center justify-between gap-3 bg-primary-800 px-4 py-3 text-white sm:px-5">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold sm:text-base">SBI PO Prelims · Full Mock 12</p>
-          <p className="text-xs text-primary-200">100 questions · 60 minutes</p>
+          <p className="truncate text-sm font-semibold sm:text-base">{title}</p>
+          <p className="text-xs text-primary-200">{meta}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2 rounded-sm bg-white/10 px-3 py-1.5" role="timer" aria-label="Time left">
           <Clock className="size-4 text-accent-400" aria-hidden="true" />
@@ -78,7 +84,7 @@ export default function TestPreview() {
           <span
             key={s}
             className={`-mb-px shrink-0 border-b-2 px-3 py-2.5 text-xs font-semibold sm:text-[0.8rem] ${
-              i === 1 ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500'
+              i === Math.min(1, sections.length - 1) ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500'
             }`}
           >
             {s}
@@ -94,7 +100,7 @@ export default function TestPreview() {
               Question {q.n} <span className="font-medium text-slate-500">of {total}</span>
             </p>
             <p className="text-xs font-semibold text-slate-500">
-              <span className="text-primary-700">+1</span> / <span className="text-accent-700">−0.25</span>
+              <span className="text-primary-700">{marking.correct}</span> / <span className="text-accent-700">{marking.wrong}</span>
             </p>
           </div>
 

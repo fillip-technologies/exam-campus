@@ -1,11 +1,7 @@
 import { useState } from 'react'
-import { BarChart3, Check, ClipboardCheck, Smartphone, Trophy } from 'lucide-react'
-
-const features = [
-  { icon: ClipboardCheck, text: 'Take mock tests anywhere' },
-  { icon: BarChart3, text: 'Track your progress after every test' },
-  { icon: Smartphone, text: 'Smooth, exam-style experience on your phone' },
-]
+import { BarChart3, Check, CheckCircle2, Trophy } from 'lucide-react'
+import { useJoinWaitlist } from '@/api/public'
+import { iconFor } from '@/lib/icons'
 
 const palette = ['a', 'a', 'a', 'a', 'm', 'a', 'a', 'c', 'n', 'n', 'n', 'n']
 const paletteStyle = {
@@ -86,18 +82,20 @@ function Phone() {
   )
 }
 
-export default function MobileApp() {
+/** Mobile app: waitlist form (mode WAITLIST, posts to /public/waitlist) or store links (mode LIVE). */
+export default function MobileApp({ section }) {
+  const { anchorId, title, body, items, config = {} } = section
   const [email, setEmail] = useState('')
-  const [done, setDone] = useState(false)
+  const join = useJoinWaitlist()
+  const live = config.mode === 'LIVE'
 
   const onSubmit = (e) => {
     e.preventDefault()
-    // TODO: send `email` to the waitlist backend / mailing list.
-    setDone(true)
+    join.mutate(email.trim())
   }
 
   return (
-    <section id="app" aria-labelledby="app-title" className="scroll-mt-24 border-t border-slate-200 bg-white">
+    <section id={anchorId ?? undefined} aria-labelledby="app-title" className="scroll-mt-24 border-t border-slate-200 bg-white">
       <div className="mx-auto w-full px-4 py-12 sm:px-6 sm:py-14 lg:px-12 lg:py-16">
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary-900 via-primary-800 to-primary-600 text-white">
           {/* background shapes */}
@@ -115,37 +113,56 @@ export default function MobileApp() {
                   <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary-900/50" />
                   <span className="relative inline-flex size-2 rounded-full bg-primary-900" />
                 </span>
-                Launching soon
+                {config.badge ?? (live ? 'Available now' : 'Launching soon')}
               </span>
 
               <h2 id="app-title" className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl lg:leading-[1.08]">
-                The ExamCampus app is{' '}
-                <span className="text-sun-300">on its way.</span>
+                {title}
+                {config.highlight && (
+                  <>
+                    {' '}
+                    <span className="text-sun-300">{config.highlight}</span>
+                  </>
+                )}
               </h2>
-              <p className="mt-4 max-w-xl text-lg leading-relaxed text-primary-100">
-                Practise mock tests and test series on your phone, wherever you are. Get notified the moment the app is live.
-              </p>
+              {body && <p className="mt-4 max-w-xl text-lg leading-relaxed text-primary-100">{body}</p>}
 
               <ul className="mt-6 space-y-3">
-                {features.map(({ icon: Icon, text }) => (
-                  <li key={text} className="flex items-center gap-3 text-primary-50">
-                    <span className="grid size-8 shrink-0 place-items-center rounded-md bg-white/15">
-                      <Icon className="size-4 text-sun-300" aria-hidden="true" />
-                    </span>
-                    {text}
-                  </li>
-                ))}
+                {items.map(({ icon, title: itemTitle, text }) => {
+                  const Icon = iconFor(icon, CheckCircle2)
+                  return (
+                    <li key={text ?? itemTitle} className="flex items-center gap-3 text-primary-50">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-white/15">
+                        <Icon className="size-4 text-sun-300" aria-hidden="true" />
+                      </span>
+                      {text ?? itemTitle}
+                    </li>
+                  )
+                })}
               </ul>
 
-              {done ? (
+              {live ? (
+                <div className="mt-8 flex flex-wrap gap-3">
+                  {config.playStoreUrl && (
+                    <a href={config.playStoreUrl} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-white px-5 py-3 font-bold text-primary-900 hover:bg-primary-50">
+                      Get it on Google Play
+                    </a>
+                  )}
+                  {config.appStoreUrl && (
+                    <a href={config.appStoreUrl} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-white px-5 py-3 font-bold text-primary-900 hover:bg-primary-50">
+                      Download on the App Store
+                    </a>
+                  )}
+                </div>
+              ) : join.isSuccess ? (
                 <p role="status" className="mt-8 flex items-center gap-2 font-semibold text-sun-300">
                   <Check className="size-5" aria-hidden="true" />
-                  Thanks! We&rsquo;ll let you know when the app launches.
+                  {config.successMessage ?? 'Thanks! We’ll let you know when the app launches.'}
                 </p>
               ) : (
                 <form onSubmit={onSubmit} className="mt-8 max-w-lg">
                   <label htmlFor="app-email" className="mb-2 block text-sm font-semibold text-primary-100">
-                    Get notified at launch
+                    {config.formLabel ?? 'Get notified at launch'}
                   </label>
                   <div className="flex flex-col gap-2 rounded-xl bg-white p-1.5 sm:flex-row">
                     <input
@@ -154,17 +171,23 @@ export default function MobileApp() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
+                      placeholder={config.placeholder ?? 'Enter your email address'}
                       autoComplete="email"
                       className="h-12 min-w-0 flex-1 rounded-lg bg-transparent px-4 text-base text-ink placeholder:text-slate-400 focus:outline-none"
                     />
                     <button
                       type="submit"
-                      className="h-12 shrink-0 rounded-lg bg-accent-500 px-6 text-base font-bold text-primary-900 transition-colors hover:bg-accent-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-800"
+                      disabled={join.isPending}
+                      className="h-12 shrink-0 disabled:opacity-60 rounded-lg bg-accent-500 px-6 text-base font-bold text-primary-900 transition-colors hover:bg-accent-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-800"
                     >
-                      Notify Me
+                      {join.isPending ? 'Sending…' : (config.buttonLabel ?? 'Notify Me')}
                     </button>
                   </div>
+                  {join.isError && (
+                    <p role="alert" className="mt-2 text-sm font-semibold text-sun-300">
+                      {join.error.fieldErrors?.email ?? join.error.message}
+                    </p>
+                  )}
                 </form>
               )}
             </div>

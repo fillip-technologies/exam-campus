@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Eye, EyeOff, X } from 'lucide-react'
 import { useAuth } from '@/context/auth/useAuth'
-import { isEmail, isMobile } from '@/services/authService'
+import { PASSWORD_MIN, isEmail, isMobile, requestOtp } from '@/services/authService'
 
 const inputCls =
   'mt-1.5 h-12 w-full rounded-lg bg-white px-4 text-base text-ink ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-600 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-600'
@@ -25,16 +25,21 @@ function Field({ id, label, error, children }) {
 }
 
 function LoginDialog() {
-  const { modal, closeLogin, login, signup } = useAuth()
+  const { modal, closeLogin, login, signup, loginWithOtp, resetPassword } = useAuth()
   const uid = useId()
   const dialogRef = useRef(null)
   const [tab, setTab] = useState(modal.tab)
-  const [form, setForm] = useState({ name: '', identifier: '', password: '' })
+  const [form, setForm] = useState({ name: '', identifier: '', password: '', code: '' })
+  // login | otp (one-time code instead of a password) | reset (forgot password); `codeSent` = step 2 of otp/reset
+  const [mode, setMode] = useState('login')
+  const [codeSent, setCodeSent] = useState(false)
+  const [notice, setNotice] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
   const [busy, setBusy] = useState(false)
   const isSignup = tab === 'signup'
+  const codeMode = !isSignup && mode !== 'login'
 
   // Focus the dialog, lock page scroll, and give focus back to the trigger on close.
   useEffect(() => {
@@ -70,6 +75,17 @@ function LoginDialog() {
 
   const switchTab = (next) => {
     setTab(next)
+    setMode('login')
+    setCodeSent(false)
+    setNotice('')
+    setErrors({})
+    setFormError('')
+  }
+
+  const switchMode = (next) => {
+    setMode(next)
+    setCodeSent(false)
+    setNotice('')
     setErrors({})
     setFormError('')
   }
@@ -78,8 +94,12 @@ function LoginDialog() {
     const next = {}
     if (isSignup && !form.name.trim()) next.name = 'Please enter your name.'
     if (!isEmail(form.identifier) && !isMobile(form.identifier)) next.identifier = 'Enter a valid email address or 10-digit mobile number.'
-    if (!form.password) next.password = 'Please enter your password.'
-    else if (isSignup && form.password.length < 6) next.password = 'Use at least 6 characters.'
+    if (codeMode && codeSent && !/^\d{4,8}$/.test(form.code.trim())) next.code = 'Enter the code we sent you.'
+    const needsPassword = !codeMode || (mode === 'reset' && codeSent)
+    if (needsPassword) {
+      if (!form.password) next.password = mode === 'reset' ? 'Choose a new password.' : 'Please enter your password.'
+      else if ((isSignup || mode === 'reset') && form.password.length < PASSWORD_MIN) next.password = `Use at least ${PASSWORD_MIN} characters.`
+    }
     return next
   }
 
@@ -91,8 +111,19 @@ function LoginDialog() {
     if (Object.keys(found).length) return
     setBusy(true)
     try {
-      await (isSignup ? signup(form) : login(form))
+      if (isSignup) await signup(form)
+      else if (mode === 'login') await login(form)
+      else if (!codeSent) {
+        await requestOtp({ identifier: form.identifier, purpose: mode === 'reset' ? 'RESET_PASSWORD' : 'LOGIN' })
+        setCodeSent(true)
+        setNotice('If an account exists for this email or mobile number, we have sent it a code. It is valid for 10 minutes.')
+        setBusy(false)
+      } else if (mode === 'otp') await loginWithOtp({ identifier: form.identifier, code: form.code })
+      else await resetPassword({ identifier: form.identifier, code: form.code, newPassword: form.password })
     } catch (err) {
+      const fields = err.fieldErrors ?? {}
+      if (fields.newPassword) fields.password = fields.newPassword
+      setErrors(fields)
       setFormError(err.message || 'Something went wrong. Please try again.')
       setBusy(false)
     }
@@ -123,7 +154,7 @@ function LoginDialog() {
         </button>
 
         <h2 id={`${uid}-title`} className="pr-8 text-2xl font-semibold tracking-tight text-primary-900">
-          {isSignup ? 'Create your account' : 'Login to continue'}
+          {isSignup ? 'Create your account' : mode === 'reset' ? 'Reset your password' : 'Login to continue'}
         </h2>
         <p className="mt-1.5 text-slate-600">
           {modal.reason ?? (isSignup ? 'Sign up to enroll in test series and track your progress.' : 'Welcome back to ExamCampus.')}
@@ -179,12 +210,29 @@ function LoginDialog() {
             />
           </Field>
 
-          <Field id={`${uid}-password`} label="Password" error={errors.password}>
+          {codeMode && codeSent && (
+            <Field id={`${uid}-code`} label="One-time code" error={errors.code}>
+              <input
+                id={`${uid}-code`}
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={form.code}
+                onChange={set('code')}
+                aria-invalid={Boolean(errors.code)}
+                aria-describedby={describe('code')}
+                className={inputCls}
+              />
+            </Field>
+          )}
+
+          {(!codeMode || (mode === 'reset' && codeSent)) && (
+          <Field id={`${uid}-password`} label={mode === 'reset' ? 'New password' : 'Password'} error={errors.password}>
             <div className="relative">
               <input
                 id={`${uid}-password`}
                 type={showPassword ? 'text' : 'password'}
-                autoComplete={isSignup ? 'new-password' : 'current-password'}
+                autoComplete={isSignup || mode === 'reset' ? 'new-password' : 'current-password'}
                 value={form.password}
                 onChange={set('password')}
                 aria-invalid={Boolean(errors.password)}
@@ -201,6 +249,13 @@ function LoginDialog() {
               </button>
             </div>
           </Field>
+          )}
+
+          {notice && !formError && (
+            <p role="status" className="rounded-md bg-primary-50 px-4 py-3 text-sm text-primary-800">
+              {notice}
+            </p>
+          )}
 
           {formError && (
             <p role="alert" className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -213,17 +268,46 @@ function LoginDialog() {
             disabled={busy}
             className="h-12 w-full rounded-lg bg-accent-500 text-base font-bold text-primary-900 transition-colors hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
           >
-            {busy ? 'Please wait…' : isSignup ? 'Create account' : 'Login'}
+            {busy
+              ? 'Please wait…'
+              : isSignup
+                ? 'Create account'
+                : mode === 'login'
+                  ? 'Login'
+                  : !codeSent
+                    ? 'Send code'
+                    : mode === 'reset'
+                      ? 'Save password and login'
+                      : 'Verify and login'}
           </button>
         </form>
 
+        {!isSignup && (
+          <div className="mt-3 flex flex-wrap justify-between gap-2 text-sm">
+            {mode === 'login' ? (
+              <>
+                <button type="button" onClick={() => switchMode('otp')} className="font-semibold text-primary-700 hover:underline">
+                  Login with a one-time code
+                </button>
+                <button type="button" onClick={() => switchMode('reset')} className="font-semibold text-primary-700 hover:underline">
+                  Forgot password?
+                </button>
+              </>
+            ) : (
+              <button type="button" onClick={() => switchMode('login')} className="font-semibold text-primary-700 hover:underline">
+                Back to password login
+              </button>
+            )}
+          </div>
+        )}
+
         <p className="mt-4 text-center text-xs leading-relaxed text-slate-500">
           By continuing you agree to our{' '}
-          <a href="#terms-of-use" className="font-semibold text-primary-700 hover:underline">
+          <a href="/pages/terms-of-use" className="font-semibold text-primary-700 hover:underline">
             Terms of Use
           </a>{' '}
           and{' '}
-          <a href="#privacy-policy" className="font-semibold text-primary-700 hover:underline">
+          <a href="/pages/privacy-policy" className="font-semibold text-primary-700 hover:underline">
             Privacy Policy
           </a>
           .
