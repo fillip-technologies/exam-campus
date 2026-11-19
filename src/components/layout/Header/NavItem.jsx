@@ -12,14 +12,15 @@ export default function NavItem({ item, open, active, onToggle, onEnter, childre
         aria-haspopup="true"
         aria-label={item.ariaLabel}
         onClick={() => onToggle(id)}
-        className={`group relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-semibold 2xl:px-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent-600 ${
+        className={`group relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm font-semibold 2xl:px-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent-600 ${
           open || active ? 'text-primary-800' : 'text-slate-600 hover:text-primary-800'
         }`}
       >
-        {Icon && <Icon className="size-4 text-accent-700" aria-hidden="true" />}
+        {/* icon and badge only on wide screens: on 1280-1535px laptops the six menus + logo need the room */}
+        {Icon && <Icon className="hidden size-4 text-accent-700 2xl:block" aria-hidden="true" />}
         {label}
         {badge && (
-          <span className="rounded bg-accent-100 px-1.5 py-0.5 text-[0.625rem] font-bold uppercase leading-none tracking-wide text-accent-700">
+          <span className="hidden rounded bg-accent-100 px-1.5 py-0.5 text-[0.625rem] font-bold uppercase leading-none tracking-wide text-accent-700 2xl:inline">
             {badge}
           </span>
         )}

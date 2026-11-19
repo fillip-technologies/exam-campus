@@ -92,7 +92,7 @@ export default function TestPreview({ preview = {} }) {
         ))}
       </div>
 
-      <div className="grid sm:grid-cols-[1fr_13.5rem]">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_13.5rem]">
         {/* Question */}
         <div className="p-4 sm:p-6">
           <div className="flex items-center justify-between text-sm">
@@ -136,8 +136,8 @@ export default function TestPreview({ preview = {} }) {
           </div>
         </div>
 
-        {/* Palette */}
-        <div className="border-t border-slate-200 bg-surface p-4 sm:border-l sm:border-t-0">
+        {/* Palette (hidden on phones: 30 buttons made the preview taller than the screen) */}
+        <div className="hidden border-t border-slate-200 bg-surface p-4 sm:block sm:border-l sm:border-t-0">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Question palette</p>
           <ol className="mt-3 grid grid-cols-6 gap-1.5 sm:grid-cols-5" aria-hidden="true">
             {Array.from({ length: paletteSize }, (_, i) => i + 1).map((n) => (

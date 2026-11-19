@@ -10,7 +10,7 @@ export default function TestPass({ section }) {
 
   return (
     <section id={anchorId ?? undefined} aria-labelledby="pass-title" className="scroll-mt-24 bg-primary-800 text-white">
-      <div className="mx-auto grid w-full items-center gap-10 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:px-12 lg:py-16">
+      <div className="mx-auto grid w-full grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:px-12 lg:py-16">
         <div>
           {eyebrow && <p className="text-sm font-bold uppercase tracking-wider text-accent-400">{eyebrow}</p>}
           <h2 id="pass-title" className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">

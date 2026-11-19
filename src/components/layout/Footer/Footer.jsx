@@ -1,5 +1,6 @@
 import Logo from '@/components/common/Logo'
 import SmartLink from '@/components/common/SmartLink'
+import GooglePlayButton from '@/components/common/GooglePlayButton'
 import { useLayout } from '@/api/public'
 import { resolveGlobalHref } from '@/lib/links'
 
@@ -36,6 +37,7 @@ export default function Footer() {
             <Logo site={site} />
           </div>
           {site.footer.tagline && <p className="mt-3 max-w-xs leading-relaxed">{site.footer.tagline}</p>}
+          <GooglePlayButton className="mt-5" />
           {social.length > 0 && (
             <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm">
               {social.map((s) => (

@@ -102,7 +102,7 @@ export default function Header() {
           <Logo site={layout?.site} />
 
           <nav aria-label="Primary" className="hidden xl:block">
-            <ul className="flex items-center gap-1">
+            <ul className="flex items-center gap-0.5 2xl:gap-1">
               {navItems.map((item) =>
                 item.type === 'link' ? (
                   <li key={item.id}>
@@ -180,7 +180,7 @@ export default function Header() {
               className="group hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-accent-500 px-4 py-2 text-sm font-bold text-primary-900 shadow-sm transition-all hover:-translate-y-px hover:bg-accent-400 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-600 sm:inline-flex"
             >
               {header?.cta?.label ?? 'Start Learning'}
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 xl:hidden 2xl:block" aria-hidden="true" />
             </SmartLink>
             <button
               type="button"

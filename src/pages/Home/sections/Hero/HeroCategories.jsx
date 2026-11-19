@@ -8,12 +8,13 @@ import { iconFor } from '@/lib/icons'
 export default function HeroCategories({ categories, activeId, onChange }) {
   return (
     <nav aria-label="Exam categories">
-      <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-7 lg:gap-3">
+      {/* phones: two rows that scroll sideways (keeps the banner near the top); tablets 4, small laptops 5, desktops 7 per row */}
+      <ul className="no-scrollbar -mx-4 grid auto-cols-[minmax(6.75rem,31%)] grid-flow-col grid-rows-2 gap-2 overflow-x-auto scroll-px-4 px-4 pb-1 snap-x sm:mx-0 sm:scroll-px-0 sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-4 sm:grid-rows-none sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5 lg:gap-3 xl:grid-cols-7">
         {categories.map((c) => {
           const selected = c.id === activeId
           const Icon = iconFor(c.icon, Circle)
           return (
-            <li key={c.id}>
+            <li key={c.id} className="snap-start">
               <button
                 type="button"
                 aria-pressed={selected}

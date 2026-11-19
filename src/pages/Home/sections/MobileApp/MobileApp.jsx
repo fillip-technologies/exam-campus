@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { BarChart3, Check, CheckCircle2, Trophy } from 'lucide-react'
 import { useJoinWaitlist } from '@/api/public'
+import GooglePlayButton from '@/components/common/GooglePlayButton'
+import { PLAY_STORE_URL } from '@/lib/app'
 import { iconFor } from '@/lib/icons'
 
 const palette = ['a', 'a', 'a', 'a', 'm', 'a', 'a', 'c', 'n', 'n', 'n', 'n']
@@ -82,12 +84,23 @@ function Phone() {
   )
 }
 
-/** Mobile app: waitlist form (mode WAITLIST, posts to /public/waitlist) or store links (mode LIVE). */
+/**
+ * Mobile app: store links when the app is live, otherwise a waitlist form (posts to /public/waitlist).
+ * The Android app is out, so the section is live whenever there is a Play Store URL (admin's, else PLAY_STORE_URL).
+ * While the admin section still holds the waitlist wording ("Launching soon", "on its way", "Get notified..."),
+ * live-mode defaults replace it; once the admin switches the section to LIVE, its own texts are used.
+ */
 export default function MobileApp({ section }) {
-  const { anchorId, title, body, items, config = {} } = section
+  const { anchorId, title, items, config: rawConfig = {} } = section
   const [email, setEmail] = useState('')
   const join = useJoinWaitlist()
-  const live = config.mode === 'LIVE'
+  const playStoreUrl = rawConfig.playStoreUrl || PLAY_STORE_URL
+  const live = rawConfig.mode === 'LIVE' || Boolean(playStoreUrl)
+  const waitlistWording = live && rawConfig.mode !== 'LIVE'
+  const config = waitlistWording ? { ...rawConfig, badge: 'Available on Android', highlight: 'now on Google Play.' } : rawConfig
+  const body = waitlistWording
+    ? 'Practise mock tests and test series on your phone, wherever you are. Download the ExamCampus app from Google Play.'
+    : section.body
 
   const onSubmit = (e) => {
     e.preventDefault()
@@ -106,7 +119,7 @@ export default function MobileApp({ section }) {
             className="absolute left-8 top-8 hidden size-28 opacity-40 [background-image:radial-gradient(#fff_1.5px,transparent_1.5px)] [background-size:14px_14px] lg:block"
           />
 
-          <div className="relative grid items-center gap-10 px-6 pt-10 sm:px-10 lg:grid-cols-[1.25fr_1fr] lg:gap-12 lg:px-16 lg:pt-0">
+          <div className="relative grid grid-cols-1 items-center gap-10 px-6 pt-10 sm:px-10 lg:grid-cols-[1.25fr_1fr] lg:gap-12 lg:px-16 lg:pt-0">
             <div className="lg:py-16">
               <span className="inline-flex items-center gap-2 rounded-md bg-sun-400 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-900">
                 <span className="relative flex size-2">
@@ -143,11 +156,7 @@ export default function MobileApp({ section }) {
 
               {live ? (
                 <div className="mt-8 flex flex-wrap gap-3">
-                  {config.playStoreUrl && (
-                    <a href={config.playStoreUrl} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-white px-5 py-3 font-bold text-primary-900 hover:bg-primary-50">
-                      Get it on Google Play
-                    </a>
-                  )}
+                  {playStoreUrl && <GooglePlayButton href={playStoreUrl} />}
                   {config.appStoreUrl && (
                     <a href={config.appStoreUrl} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-white px-5 py-3 font-bold text-primary-900 hover:bg-primary-50">
                       Download on the App Store

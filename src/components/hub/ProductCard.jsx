@@ -80,7 +80,9 @@ export default function ProductCard({ media, badge, category, languages, title, 
   const liveCoupon = activeCoupon(coupon, price)
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-900/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary-900/10">
+    // `relative` keeps the card's screen-reader-only text (absolutely positioned) inside the card. Without it, inside a
+    // sideways carousel that text escaped the carousel's clipping and made the whole page scroll sideways.
+    <article className="relative flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-900/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary-900/10">
       <div className="relative">
         {media}
         {badge && <div className="pointer-events-none absolute left-3 top-3">{badge}</div>}

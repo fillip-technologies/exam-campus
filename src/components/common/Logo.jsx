@@ -7,7 +7,7 @@ export default function Logo({ site }) {
   return (
     <Link
       to="/"
-      className="flex items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-600"
+      className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-600"
       aria-label={`${name} home`}
     >
       <img src={site?.logoMarkUrl ?? '/images/brand/logo-mark.png'} alt="" width="260" height="172" className="h-8 w-auto sm:h-10 xl:h-9 2xl:h-10" />

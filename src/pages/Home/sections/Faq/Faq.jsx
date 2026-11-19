@@ -10,7 +10,7 @@ export default function Faq({ section }) {
 
   return (
     <section id={anchorId ?? undefined} aria-labelledby="faq-title" className="scroll-mt-24 border-t border-slate-200 bg-white">
-      <div className="mx-auto grid w-full gap-8 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1fr_2fr] lg:gap-16 lg:px-12 lg:py-16">
+      <div className="mx-auto grid w-full grid-cols-1 gap-8 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1fr_2fr] lg:gap-16 lg:px-12 lg:py-16">
         <div>
           <h2 id="faq-title" className="text-3xl font-semibold tracking-tight text-primary-900 sm:text-4xl lg:leading-[1.1]">
             {title}

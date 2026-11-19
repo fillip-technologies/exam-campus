@@ -9,7 +9,7 @@ export default function ExamExperience({ section }) {
 
   return (
     <section id={anchorId ?? undefined} aria-labelledby="experience-title" className="scroll-mt-24 border-t border-slate-200 bg-white">
-      <div className="mx-auto grid w-full gap-x-16 gap-y-10 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1.2fr_1fr] lg:gap-y-10 lg:px-12 lg:py-16">
+      <div className="mx-auto grid w-full grid-cols-1 gap-x-16 gap-y-10 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1.2fr_1fr] lg:gap-y-10 lg:px-12 lg:py-16">
         {/* Heading */}
         <div className="lg:col-start-2 lg:row-start-1 lg:self-end">
           <h2 id="experience-title" className="text-3xl font-semibold tracking-tight text-primary-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">

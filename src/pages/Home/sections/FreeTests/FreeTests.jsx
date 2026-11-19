@@ -93,7 +93,7 @@ export default function FreeTests({ section }) {
   return (
     <section id={anchorId ?? undefined} aria-labelledby="free-title" className="scroll-mt-24 border-t border-slate-200 bg-surface">
       <div className="mx-auto w-full px-4 py-12 sm:px-6 sm:py-14 lg:px-12 lg:py-16">
-        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
           <h2 id="free-title" className="text-3xl font-semibold tracking-tight text-primary-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
             {title}
           </h2>
@@ -121,7 +121,7 @@ export default function FreeTests({ section }) {
           </div>
         </div>
 
-        <div key={filter} className="mt-6 grid animate-fade-in gap-6 lg:grid-cols-[1fr_1.35fr]">
+        <div key={filter} className="mt-6 grid animate-fade-in grid-cols-1 gap-6 lg:grid-cols-[1fr_1.35fr]">
           {featured ? (
             <FeaturedTest test={featured} highlights={config.featuredHighlights?.length ? config.featuredHighlights : defaultHighlights} />
           ) : (

@@ -12,18 +12,20 @@ export default function ExamCategories({ section }) {
   return (
     <section id={anchorId ?? undefined} aria-labelledby="categories-title" className="scroll-mt-24 border-t border-slate-200 bg-surface">
       <div className="mx-auto w-full px-4 py-12 sm:px-6 sm:py-14 lg:px-12 lg:py-16">
-        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
           <h2 id="categories-title" className="text-3xl font-semibold tracking-tight text-primary-900 sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
             {title}
           </h2>
           {subtitle && <p className="max-w-md text-lg leading-relaxed text-slate-500">{subtitle}</p>}
         </div>
 
-        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 xl:grid-cols-4">
+        {/* phones: one row of cards that scrolls sideways (eight stacked cards made the page ~2,500px longer) */}
+        <ul className="no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 sm:mx-0 sm:scroll-px-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:mt-10 lg:grid-cols-3 xl:grid-cols-4">
           {data.categories.map((c) => {
             const Icon = iconFor(c.icon, Circle)
             return (
-              <li key={c.id} id={`exams/${c.id}`} className="flex scroll-mt-24 flex-col rounded-md border border-slate-200 bg-white p-5">
+              <li key={c.id} id={`exams/${c.id}`} className="flex w-[85%] shrink-0 snap-start scroll-mt-24 flex-col rounded-md border border-slate-200 bg-white p-5 sm:w-auto">
+
                 <div className="flex items-center gap-3">
                   <span className="grid size-9 place-items-center rounded-md bg-primary-50 text-primary-700 ring-1 ring-inset ring-primary-100">
                     <Icon className="size-[18px]" aria-hidden="true" />
@@ -66,7 +68,7 @@ export default function ExamCategories({ section }) {
             )
           })}
           {cta && (
-            <li className="flex">
+            <li className="flex w-[85%] shrink-0 snap-start sm:w-auto">
               <SmartLink
                 href={cta.href ?? '#all-exams'}
                 className="group flex w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-primary-200 bg-white/60 p-5 text-center transition-colors hover:border-primary-600 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
