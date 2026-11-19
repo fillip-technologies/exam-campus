@@ -4,7 +4,7 @@ export default function SectionShell({ id, title, intro, icon: Icon, children, c
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      className={`scroll-mt-56 md:scroll-mt-44 rounded-md border border-t-4 border-slate-200 border-t-primary-600 bg-white p-5 shadow-sm shadow-primary-900/5 sm:p-8 ${className}`}
+      className={`scroll-mt-56 md:scroll-mt-44 rounded-md bg-white p-5 shadow-sm shadow-primary-900/5 sm:p-8 ${className}`}
     >
       <div className="flex items-start gap-3 sm:gap-4">
         {Icon && (

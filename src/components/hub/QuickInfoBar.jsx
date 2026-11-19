@@ -1,10 +1,10 @@
 import { TBA } from '@/lib/format'
 
-/** items: [{ label, value }]  A missing value renders as "To Be Announced". */
-export default function QuickInfoBar({ items }) {
+/** items: [{ label, value }]  A missing value renders as "To Be Announced". `wide` = full page width. */
+export default function QuickInfoBar({ items, wide = false }) {
   return (
     <div className="border-b border-slate-200 bg-white">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className={wide ? 'w-full px-4 sm:px-6 lg:px-12' : 'mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8'}>
         <dl className="grid grid-cols-2 divide-slate-200 sm:grid-cols-3 lg:grid-cols-6 lg:divide-x">
           {items.map((item) => (
             <div key={item.label} className="border-b border-slate-100 py-4 pr-3 sm:px-4 sm:nth-[3n+1]:pl-0 lg:border-b-0 lg:nth-[3n+1]:pl-4 lg:first:pl-0">

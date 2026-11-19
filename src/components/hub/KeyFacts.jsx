@@ -13,7 +13,7 @@ export default function KeyFacts({ facts = [], className = '' }) {
         return (
           <div
             key={f.label}
-            className={`rounded-md border-t-4 p-4 ${accent ? 'border-accent-500 bg-accent-50' : 'border-primary-600 bg-primary-50'}`}
+            className={`rounded-md p-4 ${accent ? 'bg-accent-50' : 'bg-primary-50'}`}
           >
             <dt className={`text-xs font-bold uppercase tracking-wider ${accent ? 'text-accent-700' : 'text-primary-600'}`}>{f.label}</dt>
             <dd className="mt-1.5 text-lg font-bold leading-snug text-primary-900">{f.value}</dd>

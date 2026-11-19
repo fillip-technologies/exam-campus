@@ -4,6 +4,7 @@ import { useAuth } from '@/context/auth/useAuth'
 import { useProduct } from '@/api/public'
 import { pageState } from '@/components/common/LoadState'
 import { formatRupees } from '@/lib/format'
+import { usePageMeta } from '@/lib/usePageMeta'
 
 /**
  * Enrollment page (/enroll/:slug). It is only usable when logged in: logged-out visitors are asked to log in.
@@ -16,9 +17,7 @@ export default function EnrollPage() {
   const query = useProduct(slug)
   const product = query.data
 
-  useEffect(() => {
-    document.title = 'Enroll | ExamCampus'
-  }, [])
+  usePageMeta({ title: product ? `Enroll: ${product.title} | ExamCampus` : 'Enroll | ExamCampus' })
 
   // Direct visits while logged out get the login popup straight away.
   useEffect(() => {

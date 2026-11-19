@@ -10,6 +10,7 @@ import { ColumnsMega } from './MegaPanels'
 import CategoryMega from './CategoryMega'
 import SmartLink from '@/components/common/SmartLink'
 import { iconFor } from '@/lib/icons'
+import { cleanNav } from '@/lib/links'
 import SearchPanel from './SearchPanel'
 import SearchCombobox from '@/components/common/SearchCombobox'
 import MobileDrawer from './MobileDrawer'
@@ -22,7 +23,8 @@ export default function Header() {
   const { pathname } = useLocation()
   const { user, isLoggedIn, logout, openLogin } = useAuth()
   const { data: layout } = useLayout()
-  const navItems = (layout?.nav ?? []).map((n) => ({ ...n, icon: iconFor(n.icon) }))
+  // cleanNav: dropdown items without a page are left out (see src/lib/links.js)
+  const navItems = cleanNav(layout?.nav).map((n) => ({ ...n, icon: iconFor(n.icon) }))
   const header = layout?.site.header
   const activeId = navItems.find((n) => n.activePathPrefix && pathname.startsWith(n.activePathPrefix))?.id ?? null
   const [searchOpen, setSearchOpen] = useState(false)

@@ -17,7 +17,7 @@ export default function Faq({ section }) {
           </h2>
           {subtitle && <p className="mt-4 text-lg leading-relaxed text-slate-500">{subtitle}</p>}
           {cta?.href && (
-            <SmartLink href={cta.href} className="mt-3 inline-block font-semibold text-primary-700 underline-offset-4 hover:underline">
+            <SmartLink href={cta.href} fallback={null} className="mt-3 inline-block font-semibold text-primary-700 underline-offset-4 hover:underline">
               {cta.label}
             </SmartLink>
           )}

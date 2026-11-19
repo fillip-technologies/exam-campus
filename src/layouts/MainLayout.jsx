@@ -1,6 +1,7 @@
 import Header from '@/components/layout/Header/Header'
 import Footer from '@/components/layout/Footer/Footer'
 import LoginModal from '@/components/auth/LoginModal'
+import Analytics from '@/components/common/Analytics'
 
 /** Site chrome shared by every page: skip link, header, main landmark, footer. */
 export default function MainLayout({ children }) {
@@ -16,6 +17,7 @@ export default function MainLayout({ children }) {
       <main id="main">{children}</main>
       <Footer />
       <LoginModal />
+      <Analytics />
     </>
   )
 }

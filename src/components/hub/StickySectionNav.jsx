@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 
 /**
  * Sticky in-page navigation with scroll-spy.
- * items: [{ id, label }]  (ids of the sections on the page)
+ * items: [{ id, label }]  (ids of the sections on the page) · wide: full page width instead of max-w-6xl
  */
-export default function StickySectionNav({ items }) {
+export default function StickySectionNav({ items, wide = false }) {
   const [active, setActive] = useState(items[0]?.id)
   const itemRefs = useRef({})
   const listRef = useRef(null)
@@ -32,7 +32,7 @@ export default function StickySectionNav({ items }) {
 
   return (
     <nav aria-label="On this page" className="sticky top-[165px] z-30 md:top-[6.75rem] border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className={wide ? 'w-full px-4 sm:px-6 lg:px-12' : 'mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8'}>
         <ul ref={listRef} className="relative no-scrollbar flex gap-1 overflow-x-auto">
           {items.map((item) => {
             const isActive = item.id === active

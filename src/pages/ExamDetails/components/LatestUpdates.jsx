@@ -1,18 +1,14 @@
 import { ExternalLink, Bell } from 'lucide-react'
-import SectionShell, { EmptyState } from '@/components/hub/SectionShell'
+import SectionShell from '@/components/hub/SectionShell'
 import { formatDate } from '@/lib/format'
 
-/** updates: [{ date, title, description?, sourceUrl?, sourceLabel? }]  Rendered newest first. */
+/** updates: [{ date, title, description?, sourceUrl?, sourceLabel? }]  Rendered newest first; hidden when there are none. */
 export default function LatestUpdates({ examName, updates = [] }) {
+  if (!updates.length) return null
   const sorted = [...updates].sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
 
   return (
     <SectionShell icon={Bell} id="latest-updates" title={`${examName} Latest Updates`}>
-      {sorted.length === 0 ? (
-        <EmptyState>
-          No updates have been published yet. Check the official {examName} notification for the latest information. We add important updates here as soon as they are announced.
-        </EmptyState>
-      ) : (
         <ol className="relative space-y-6 border-l-2 border-slate-200 pl-6">
           {sorted.map((u) => (
             <li key={`${u.date}-${u.title}`} className="relative">
@@ -38,7 +34,6 @@ export default function LatestUpdates({ examName, updates = [] }) {
             </li>
           ))}
         </ol>
-      )}
     </SectionShell>
   )
 }

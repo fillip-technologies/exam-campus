@@ -54,7 +54,7 @@ export default function ExamCategories({ section }) {
                 </ul>
 
                 <SmartLink
-                  href={c.href ?? `#exams/${c.id}`}
+                  href={`/exams?category=${c.id}`}
                   className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-primary-700 hover:text-primary-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
                 >
                   View all {c.label}

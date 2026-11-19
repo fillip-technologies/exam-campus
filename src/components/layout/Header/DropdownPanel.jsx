@@ -2,6 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import MenuLink from './MenuLink'
 import SmartLink from '@/components/common/SmartLink'
 import { iconFor } from '@/lib/icons'
+import { resolveGlobalHref } from '@/lib/links'
 
 export default function DropdownPanel({ item, onNavigate }) {
   return (
@@ -18,9 +19,9 @@ export default function DropdownPanel({ item, onNavigate }) {
           </li>
         ))}
       </ul>
-      {item.footer && (
+      {item.footer && resolveGlobalHref(item.footer.href) && (
         <SmartLink
-          href={item.footer.href ?? '#'}
+          href={resolveGlobalHref(item.footer.href)}
           onClick={onNavigate}
           className="mt-1 flex items-center justify-between rounded-lg bg-surface px-3 py-2.5 text-sm font-semibold text-primary-700 transition-colors hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-accent-600"
         >

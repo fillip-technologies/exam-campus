@@ -5,6 +5,7 @@ import { ArrowRight, ChevronDown, Circle, LayoutDashboard, X } from 'lucide-reac
 import Logo from '@/components/common/Logo'
 import SmartLink from '@/components/common/SmartLink'
 import { iconFor } from '@/lib/icons'
+import { resolveGlobalHref } from '@/lib/links'
 import { isStaff } from '@/services/authService'
 import { examHref } from './CategoryMega'
 
@@ -147,7 +148,17 @@ export default function MobileDrawer({ layout, navItems, onClose }) {
                       const ItemIcon = iconFor(i.icon, Circle)
                       return (
                       <li key={i.title}>
-                        <SmartLink href={i.href ?? '#'} onClick={onClose} className={subLink}>
+                        <SmartLink
+                          href={resolveGlobalHref(i.href)}
+                          onClick={onClose}
+                          className={subLink}
+                          fallback={
+                            <span className={`${subLink} text-slate-400`}>
+                              <ItemIcon className="size-4" aria-hidden="true" /> {i.title}
+                              <span className="ml-auto rounded-sm bg-slate-100 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wide text-slate-500">Soon</span>
+                            </span>
+                          }
+                        >
                           <ItemIcon className="size-4 text-primary-600" aria-hidden="true" /> {i.title}
                         </SmartLink>
                       </li>

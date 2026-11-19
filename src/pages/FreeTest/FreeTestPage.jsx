@@ -4,6 +4,7 @@ import { useAuth } from '@/context/auth/useAuth'
 import { useFreeTest } from '@/api/public'
 import { pageState } from '@/components/common/LoadState'
 import { formatMinutes } from '@/lib/format'
+import { usePageMeta } from '@/lib/usePageMeta'
 
 /**
  * Free test start page (/free-test/:slug). Only usable when logged in: logged-out visitors are asked to log in.
@@ -16,9 +17,7 @@ export default function FreeTestPage() {
   const query = useFreeTest(slug)
   const test = query.data
 
-  useEffect(() => {
-    document.title = 'Free Test | ExamCampus'
-  }, [])
+  usePageMeta({ title: test ? `${test.title} | Free Mock Test | ExamCampus` : 'Free Test | ExamCampus' })
 
   // Direct visits while logged out get the login popup straight away.
   useEffect(() => {
