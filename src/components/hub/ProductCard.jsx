@@ -174,7 +174,8 @@ export function ProductGrid({ children, noun = 'items' }) {
   const extra = items.length - limit
   return (
     <>
-      <div className={`grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 ${items.length === 1 ? 'max-w-sm sm:grid-cols-1 lg:grid-cols-1 2xl:grid-cols-1' : ''}`}>
+      {/* One set of column classes or the other, never both: mixed, the wider rule wins and squeezes a lone card */}
+      <div className={`grid grid-cols-1 gap-5 ${items.length === 1 ? 'max-w-sm' : 'sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4'}`}>
         {all ? items : items.slice(0, limit)}
       </div>
       {extra > 0 && (
