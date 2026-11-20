@@ -8,7 +8,6 @@ import HubFinalCta from '@/components/hub/HubFinalCta'
 import PaperRow from '@/components/hub/PaperRow'
 import SectionShell from '@/components/hub/SectionShell'
 import ExamPattern from '@/pages/ExamDetails/components/ExamPattern'
-import { samplePapers } from '@/data/samplePapers'
 import { groupByYear, paperKey, paperStages, paperYears, sortPapers } from '@/lib/papers'
 import { usePageMeta } from '@/lib/usePageMeta'
 
@@ -43,8 +42,8 @@ export default function ExamPapersPage() {
   if (state) return state
 
   const { name, org } = exam
-  // Until the API has papers for this exam, dev builds show sample papers (src/data/samplePapers.js); production shows none.
-  const papers = exam.previousYearPapers?.length ? exam.previousYearPapers : import.meta.env.DEV ? samplePapers() : []
+  // Added in the admin panel: Exams → <exam> → PYQs
+  const papers = exam.previousYearPapers ?? []
   const sorted = sortPapers(papers)
   const stages = paperStages(papers)
   const years = paperYears(papers)
@@ -57,7 +56,7 @@ export default function ExamPapersPage() {
   const filtered = sorted.filter((p) => (!activeStage || p.stage === activeStage) && (!activeYear || p.year === activeYear))
   const groups = groupByYear(filtered)
   const firstPractice = sorted.find((p) => p.practiceUrl)
-  const hasCourses = (exam.courses?.length ?? 0) > 0 || import.meta.env.DEV
+  const hasCourses = (exam.courses?.length ?? 0) > 0
 
   // Builds on the address bar as it is right now (the router updates it immediately but re-renders a moment
   // later), so quick successive clicks never drop a filter.

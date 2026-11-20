@@ -21,7 +21,7 @@ export default function FreeTestPage() {
 
   // Direct visits while logged out get the login popup straight away.
   useEffect(() => {
-    if (test && ready && !isLoggedIn) openLogin({ reason: `Please log in to start ${test.title}.` })
+    if (test && !test.redirectUrl && ready && !isLoggedIn) openLogin({ reason: `Please log in to start ${test.title}.` })
   }, [test, ready, isLoggedIn, openLogin])
 
   const state = pageState(query)

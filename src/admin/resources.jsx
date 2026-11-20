@@ -2,7 +2,7 @@
  * Admin resource definitions: one entry per /api/v1/admin/<key> resource (backend: src/modules/admin/resources.ts).
  * The generic list / edit pages are built from these, so a new column usually means one new line here.
  *
- * Field kinds: text | textarea | markdown | number | bool | select | date | datetime | slug | icon | url | image |
+ * Field kinds: text | textarea | markdown | number | bool | select | date | datetime | slug | icon | url | image | imageList |
  *   link (prefix) | relation | relations | stringList | labelValue | blocks | homeConfig | json | readonly
  * Field options: required, help, options, resource (relation), labelKey, from (slug source), showIf(values),
  *   group (form section), half (two per row), readOnly
@@ -40,6 +40,13 @@ const hubOwnerFields = [
   { key: 'classId', label: 'Class', kind: 'relation', resource: 'classes', half: true },
 ]
 
+/**
+ * "Redirect link": for now, send visitors to another site instead of our page. Empty = our own page.
+ * Series, free tests and the pass also follow the "Default redirect link" in Brand & settings.
+ */
+const redirectField = (help, label = 'Redirect link') => ({ key: 'redirectUrl', label, kind: 'url', group: 'Redirect', help })
+const redirectColumn = { key: 'redirectUrl', label: 'Redirect', render: (r) => (r.redirectUrl ? '↗ Redirects' : '') }
+
 const titleOf = (...keys) => (row) => keys.map((k) => row?.[k]).find(Boolean) ?? '(untitled)'
 
 export const resources = {
@@ -50,7 +57,7 @@ export const resources = {
     group: 'Site',
     sortable: true,
     title: titleOf('text'),
-    help: 'The first active announcement (in this order, within its dates) is shown above the header.',
+    help: 'Every active announcement (within its dates) is shown above the header in one row that scrolls right to left, in this order. The colour and the close button come from the first one.',
     columns: [
       { key: 'text', label: 'Text' },
       { key: 'ctaLabel', label: 'Button' },
@@ -462,6 +469,7 @@ export const resources = {
       { key: 'org', label: 'Org', render: (r) => r.org?.key },
       { key: '_count', label: 'Series', render: (r) => r._count?.series },
       { key: 'status', label: 'Status', kind: 'status' },
+      redirectColumn,
     ],
     fields: [
       { key: 'name', label: 'Name', kind: 'text', required: true, half: true },
@@ -480,11 +488,15 @@ export const resources = {
       { key: 'patternSummary', label: 'Pattern summary', kind: 'textarea', group: 'Pattern & syllabus' },
       { key: 'patternDisclaimer', label: 'Pattern disclaimer', kind: 'textarea', group: 'Pattern & syllabus' },
       { key: 'syllabusOfficialUrl', label: 'Official syllabus URL', kind: 'url', group: 'Pattern & syllabus' },
+      { key: 'demoVideoUrl', label: 'Free demo class video (YouTube)', kind: 'url', group: 'Courses', help: 'Shows the "Free Live Demo Class" strip above the courses. Empty = the first course\'s demo video.' },
       { key: 'relatedExamIds', label: 'Related exams', kind: 'relations', resource: 'exams', ordered: true, group: 'Related exams' },
       ...seoFields,
+      redirectField('e.g. https://othersite.com/sbi-po. Menus, search and cards open this link instead of the exam page; the exam page itself forwards here.'),
     ],
     children: [
       { resource: 'quick-info', fk: 'examId', label: 'Quick info' },
+      { resource: 'courses', fk: 'examId', label: 'Courses' },
+      { resource: 'faculty', fk: 'examId', label: 'Faculty' },
       { resource: 'series', fk: 'examId', label: 'Test series' },
       { resource: 'exam-updates', fk: 'examId', label: 'Updates' },
       { resource: 'exam-dates', fk: 'examId', label: 'Dates' },
@@ -644,6 +656,7 @@ export const resources = {
       { key: 'year', label: 'Year' },
       { key: 'stage', label: 'Stage' },
       { key: 'shift', label: 'Shift' },
+      { key: 'practiceUrl', label: 'Attempt link', render: (r) => (r.practiceUrl ? '↗ Yes' : '') },
       { key: 'visible', label: 'Visible', kind: 'bool' },
     ],
     fields: [
@@ -652,8 +665,14 @@ export const resources = {
       { key: 'stage', label: 'Stage', kind: 'text', half: true },
       { key: 'shift', label: 'Shift', kind: 'text', half: true },
       { key: 'type', label: 'Type', kind: 'text', half: true },
-      { key: 'viewUrl', label: 'View URL (PDF)', kind: 'image', accept: 'pdf', half: true },
-      { key: 'downloadUrl', label: 'Download URL', kind: 'url', half: true },
+      { key: 'heldOn', label: 'Exam date', kind: 'date', half: true },
+      { key: 'languages', label: 'Languages', kind: 'stringList', half: true },
+      { key: 'questions', label: 'Questions', kind: 'number', half: true },
+      { key: 'marks', label: 'Marks', kind: 'number', half: true },
+      { key: 'durationMinutes', label: 'Duration (minutes)', kind: 'number', half: true },
+      { key: 'viewUrl', label: 'Paper PDF', kind: 'image', accept: 'pdf', half: true, help: 'Used for both View and Download.' },
+      { key: 'downloadUrl', label: 'Separate download URL', kind: 'url', half: true, help: 'Only if the download is a different file.' },
+      { key: 'practiceUrl', label: 'Attempt Online link (redirect)', kind: 'url', help: 'Shows "Attempt Online" and opens this link, e.g. the paper on another test site.' },
       ...visibleFields,
     ],
   },
@@ -728,6 +747,7 @@ export const resources = {
       { key: 'name', label: 'Class' },
       { key: 'group', label: 'Group', render: (r) => r.group?.label },
       { key: 'status', label: 'Status', kind: 'status' },
+      redirectColumn,
     ],
     fields: [
       { key: 'name', label: 'Name', kind: 'text', required: true, half: true },
@@ -738,6 +758,7 @@ export const resources = {
       { key: 'description', label: 'Description', kind: 'textarea' },
       { key: 'status', label: 'Status', kind: 'select', options: STATUS_OPTIONS, default: 'DRAFT', half: true },
       ...seoFields,
+      redirectField('Menus, search and cards open this link instead of the class page; the class page itself forwards here.'),
     ],
     children: [
       { resource: 'quick-info', fk: 'classId', label: 'Quick info' },
@@ -796,6 +817,7 @@ export const resources = {
       { key: 'price', label: 'Price', render: (r) => `₹${r.price} / ₹${r.mrp}` },
       { key: 'isPrimary', label: 'Primary', kind: 'bool' },
       { key: 'status', label: 'Status', kind: 'status' },
+      redirectColumn,
     ],
     fields: [
       { key: 'title', label: 'Title', kind: 'text', required: true },
@@ -818,6 +840,7 @@ export const resources = {
       { key: 'sectionalTests', label: 'Sectional', kind: 'number', half: true, group: 'Test counts' },
       { key: 'topicTests', label: 'Topic-wise', kind: 'number', half: true, group: 'Test counts' },
       { key: 'pyqTests', label: 'Previous year papers', kind: 'number', half: true, group: 'Test counts' },
+      redirectField('This test series\' own link, e.g. https://othersite.com/sbi-po-series. "Enroll Now", "Buy" and "View details" open it in a new tab. Empty = our enroll page.', 'Enroll Now link'),
     ],
   },
   'free-tests': {
@@ -837,6 +860,7 @@ export const resources = {
       { key: 'durationMinutes', label: 'Min' },
       { key: 'featured', label: 'Featured', kind: 'bool' },
       { key: 'status', label: 'Status', kind: 'status' },
+      redirectColumn,
     ],
     fields: [
       { key: 'title', label: 'Title', kind: 'text', required: true },
@@ -848,6 +872,101 @@ export const resources = {
       { key: 'highlights', label: 'Highlights', kind: 'stringList' },
       { key: 'featured', label: 'Featured on the home page', kind: 'bool', half: true },
       { key: 'status', label: 'Status', kind: 'select', options: STATUS_OPTIONS, default: 'DRAFT', half: true },
+      redirectField('This free test\'s own link. "Start test" opens it in a new tab. Empty = our free test page.', 'Start test link'),
+    ],
+  },
+  courses: {
+    label: 'Courses',
+    singular: 'Course',
+    group: 'Catalog',
+    publishable: true,
+    sortable: true,
+    searchable: true,
+    title: (r) => (r?.exam?.name ? `${r.title} (${r.exam.name})` : (r?.title ?? '(untitled)')),
+    help: 'Live / recorded class packages, shown in the Courses section of their exam page.',
+    filters: [{ key: 'status', label: 'Status', options: STATUS_OPTIONS }],
+    columns: [
+      { key: 'images.0', label: 'Image', kind: 'image' },
+      { key: 'title', label: 'Title' },
+      { key: 'exam', label: 'Exam', render: (r) => r.exam?.name },
+      { key: 'mode', label: 'Mode' },
+      { key: 'price', label: 'Price', render: (r) => `₹${r.price} / ₹${r.mrp}` },
+      { key: 'status', label: 'Status', kind: 'status' },
+    ],
+    fields: [
+      { key: 'title', label: 'Title', kind: 'text', required: true },
+      { key: 'subtitle', label: 'Subtitle', kind: 'text', half: true, help: 'e.g. "Prelims + Mains"' },
+      { key: 'examId', label: 'Exam', kind: 'relation', resource: 'exams', required: true, half: true },
+      { key: 'mode', label: 'Mode', kind: 'select', options: opts('LIVE', 'RECORDED', 'HYBRID'), default: 'LIVE', required: true, half: true },
+      { key: 'status', label: 'Status', kind: 'select', options: STATUS_OPTIONS, default: 'DRAFT', half: true },
+      { key: 'isPrimary', label: 'Main course of this exam', kind: 'bool', help: 'Shown first, and used by the "Enroll" bar on phones.' },
+      { key: 'images', label: 'Images', kind: 'imageList', group: 'Images & video', help: 'Slides on the course card (16:9 looks best). Upload or pick from the media library; the first one shows first.' },
+      { key: 'demoVideoUrl', label: 'Demo video (YouTube URL)', kind: 'url', group: 'Images & video', help: 'e.g. https://www.youtube.com/watch?v=... Adds a "Live Demo" button and a video slide after the images.' },
+      { key: 'price', label: 'Price (₹)', kind: 'number', required: true, half: true, group: 'Price' },
+      { key: 'mrp', label: 'MRP (₹)', kind: 'number', required: true, half: true, group: 'Price' },
+      { key: 'validityMonths', label: 'Validity (months)', kind: 'number', default: 12, half: true, group: 'Price' },
+      { key: 'offerLabel', label: 'Offer label', kind: 'text', half: true, group: 'Price', help: 'e.g. Bestseller' },
+      { key: 'languages', label: 'Languages', kind: 'stringList', half: true, group: 'Card' },
+      { key: 'faculty', label: 'Teachers (names)', kind: 'stringList', half: true, group: 'Card' },
+      { key: 'startDate', label: 'Batch starts', kind: 'date', half: true, group: 'Card' },
+      { key: 'liveClasses', label: 'Live classes', kind: 'number', half: true, group: 'Card' },
+      { key: 'recordedVideos', label: 'Recorded videos', kind: 'number', half: true, group: 'Card' },
+      { key: 'totalTests', label: 'Tests', kind: 'number', half: true, group: 'Card' },
+      { key: 'extraStats', label: 'Custom counts', kind: 'labelValue', group: 'Card', help: 'Replaces the three counts above, e.g. Notes PDFs: 40' },
+      { key: 'includes', label: 'What is included', kind: 'stringList', group: 'Card' },
+      redirectField('This course\'s own link, e.g. https://othersite.com/sbi-po-foundation. "Enroll Now" opens it in a new tab. Empty = the exam\'s test series enroll page.', 'Enroll Now link'),
+    ],
+  },
+  faculty: {
+    label: 'Faculty',
+    singular: 'Teacher',
+    parentOnly: true,
+    sortable: true,
+    title: titleOf('name'),
+    columns: [
+      { key: 'photoUrl', label: 'Photo', kind: 'image' },
+      { key: 'name', label: 'Name' },
+      { key: 'subject', label: 'Subject' },
+      { key: 'visible', label: 'Visible', kind: 'bool' },
+    ],
+    fields: [
+      { key: 'examId', label: 'Exam', kind: 'relation', resource: 'exams', required: true },
+      { key: 'name', label: 'Name', kind: 'text', required: true, half: true },
+      { key: 'subject', label: 'Subject', kind: 'text', half: true },
+      { key: 'experience', label: 'Experience', kind: 'text', help: 'e.g. 12 years teaching Quant' },
+      { key: 'photoUrl', label: 'Photo', kind: 'image', help: 'Square works best. Empty = initials.' },
+      { key: 'demoVideoUrl', label: 'Demo video (YouTube URL)', kind: 'url', help: 'Adds a "Play Demo" button.' },
+      ...visibleFields,
+    ],
+  },
+  coupons: {
+    label: 'Coupons',
+    singular: 'Coupon',
+    group: 'Catalog',
+    writeRole: 'ADMIN',
+    searchable: true,
+    title: titleOf('code'),
+    help: 'Each coupon shows on all courses / test series, or only the ones you pick. If several fit one card, the card shows the one that saves the most. A coupon hides itself when switched off, before "Valid from", after "Valid till" or once it reaches its use limit.',
+    columns: [
+      { key: 'code', label: 'Code' },
+      { key: 'value', label: 'Discount', render: (r) => (r.type === 'PERCENT' ? `${r.value}%` : `₹${r.value}`) },
+      { key: 'validTo', label: 'Valid till', kind: 'datetime' },
+      { key: '_count', label: 'Shown on', render: (r) => [r.allCourses ? 'All courses' : `${r._count?.courses ?? 0} courses`, r.allSeries ? 'All series' : `${r._count?.series ?? 0} series`].join(' · ') },
+      { key: 'active', label: 'Active', kind: 'bool' },
+    ],
+    fields: [
+      { key: 'code', label: 'Code', kind: 'text', required: true, half: true, help: 'Saved in capitals, e.g. SBIPO10' },
+      { key: 'label', label: 'Text on the card', kind: 'text', half: true, help: 'Empty = "Extra 10% off"' },
+      { key: 'type', label: 'Type', kind: 'select', options: [{ value: 'PERCENT', label: 'Percent off' }, { value: 'FLAT', label: 'Flat ₹ off' }], default: 'PERCENT', required: true, half: true },
+      { key: 'value', label: 'Discount (% or ₹)', kind: 'number', required: true, half: true },
+      { key: 'validFrom', label: 'Valid from', kind: 'datetime', half: true },
+      { key: 'validTo', label: 'Valid till', kind: 'datetime', half: true },
+      { key: 'maxUses', label: 'Use limit', kind: 'number', half: true, help: 'Empty = no limit' },
+      activeField,
+      { key: 'allCourses', label: 'All courses', kind: 'bool', group: 'Show it on', help: 'Every course card shows this coupon.' },
+      { key: 'courseIds', label: 'Selected courses', kind: 'relations', resource: 'courses', group: 'Show it on', showIf: (v) => !v.allCourses, help: 'Only these course cards show it.' },
+      { key: 'allSeries', label: 'All test series', kind: 'bool', group: 'Show it on', help: 'Every test series card shows this coupon.' },
+      { key: 'seriesIds', label: 'Selected test series', kind: 'relations', resource: 'series', group: 'Show it on', showIf: (v) => !v.allSeries, help: 'Only these test series cards show it.' },
     ],
   },
   passes: {
@@ -862,6 +981,7 @@ export const resources = {
       { key: 'price', label: 'Price', render: (r) => `₹${r.price} / ₹${r.mrp}` },
       { key: 'validityMonths', label: 'Months' },
       { key: 'active', label: 'Active', kind: 'bool' },
+      redirectColumn,
     ],
     fields: [
       { key: 'title', label: 'Title', kind: 'text', required: true, half: true },
@@ -871,6 +991,7 @@ export const resources = {
       { key: 'validityMonths', label: 'Validity (months)', kind: 'number', required: true, default: 12, half: true },
       activeField,
       { key: 'benefits', label: 'Benefits', kind: 'stringList' },
+      redirectField('The pass\'s own link. "Buy pass" opens it in a new tab. Empty = our enroll page.', 'Buy pass link'),
     ],
   },
 

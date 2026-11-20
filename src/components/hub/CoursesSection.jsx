@@ -1,3 +1,4 @@
+import SmartLink from '@/components/common/SmartLink'
 import { useState } from 'react'
 import { ArrowRight, BookOpen, CalendarDays, CirclePlay, GraduationCap, MonitorPlay, NotebookPen, Play, UserRound } from 'lucide-react'
 import EnrollButton from '@/components/common/EnrollButton'
@@ -72,9 +73,9 @@ function CourseCard({ course, examName, org, toneIndex, onPlay }) {
             Live Demo
           </button>
         ) : detailsUrl ? (
-          <a key="details" href={detailsUrl} className={secondaryAction}>
+          <SmartLink key="details" href={detailsUrl} className={secondaryAction}>
             View Details
-          </a>
+          </SmartLink>
         ) : null,
         <EnrollButton key="enroll" to={enrollUrl} what={title} className={primaryAction}>
           Enroll Now

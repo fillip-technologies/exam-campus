@@ -11,7 +11,6 @@ import ResourceEditPage from './pages/ResourceEditPage'
 import SiteSettingsPage from './pages/SiteSettingsPage'
 import MediaPage from './pages/MediaPage'
 import UsersPage from './pages/UsersPage'
-import WaitlistPage from './pages/WaitlistPage'
 import AuditLogPage from './pages/AuditLogPage'
 import NotFound from './pages/NotFound'
 
@@ -34,7 +33,6 @@ export default function AdminApp() {
           <Route path="settings" element={<SiteSettingsPage />} />
           <Route path="media" element={<MediaPage />} />
           <Route path="users" element={<UsersPage />} />
-          <Route path="waitlist" element={<WaitlistPage />} />
           <Route path="audit" element={<AuditLogPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>

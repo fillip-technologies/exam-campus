@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import SmartLink from '@/components/common/SmartLink'
 import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { MegaShell } from './MegaPanels'
@@ -76,8 +76,8 @@ export default function ExamMegaMenu({ id, idPrefix, menu, label, footer, linkFo
             {active.exams.map((e) => (
               <li key={e.slug}>
                 {linkFor(e) ? (
-                  <Link
-                    to={linkFor(e)}
+                  <SmartLink
+                    href={linkFor(e)}
                     onClick={onNavigate}
                     className="group flex items-center gap-3 rounded-sm border border-slate-200 bg-white px-3.5 py-3 transition-colors duration-150 hover:border-primary-300 hover:bg-primary-50/60 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary-600"
                   >
@@ -85,7 +85,7 @@ export default function ExamMegaMenu({ id, idPrefix, menu, label, footer, linkFo
                     <span className="min-w-0 truncate text-sm font-semibold text-ink group-hover:text-primary-700">
                       {e.name}
                     </span>
-                  </Link>
+                  </SmartLink>
                 ) : (
                   <div className="flex items-center gap-3 rounded-sm border border-dashed border-slate-200 bg-white px-3.5 py-3" title="Exam page coming soon">
                     <ExamLogo org={e.org} name={e.name} />

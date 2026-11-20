@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import SmartLink from '@/components/common/SmartLink'
 import { ArrowRight, LayoutGrid } from 'lucide-react'
 import ExamLogo from '@/components/common/ExamLogo'
 import SectionShell from '@/components/hub/SectionShell'
@@ -30,9 +30,9 @@ export default function RelatedExams({ exams = [] }) {
           return (
             <li key={e.slug}>
               {live ? (
-                <Link to={e.href} className={`${cls} hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600`}>
+                <SmartLink href={e.href} className={`${cls} hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600`}>
                   {inner}
-                </Link>
+                </SmartLink>
               ) : (
                 <div className={cls}>{inner}</div>
               )}

@@ -9,10 +9,7 @@ import { resources } from './resources'
 const special = {
   Site: [{ to: '/admin/settings', label: 'Brand & settings' }],
   Content: [{ to: '/admin/media', label: 'Media library' }],
-  Students: [
-    { to: '/admin/users', label: 'Users' },
-    { to: '/admin/waitlist', label: 'App waitlist' },
-  ],
+  Students: [{ to: '/admin/users', label: 'Users' }],
   System: [{ to: '/admin/audit', label: 'Audit log', role: 'ADMIN' }],
 }
 const GROUPS = ['Site', 'Home page', 'Catalog', 'Content', 'Students', 'System']

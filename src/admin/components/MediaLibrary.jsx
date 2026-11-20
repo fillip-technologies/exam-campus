@@ -40,7 +40,11 @@ export default function MediaLibrary({ onPick }) {
       },
     },
   )
-  const remove = useAdminMutation((id) => api(`/admin/media/${id}`, { method: 'DELETE' }), { resource: 'media', onSuccess: () => toast('Deleted') })
+  const remove = useAdminMutation((id) => api(`/admin/media/${id}`, { method: 'DELETE' }), {
+    resource: 'media',
+    onSuccess: () => toast('Deleted'),
+    onError: (err) => toast(err?.message ?? 'Could not delete the file', 'error'),
+  })
 
   const onDelete = async (asset) => {
     const ok = await confirm({

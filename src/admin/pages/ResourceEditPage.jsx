@@ -23,7 +23,7 @@ const ENTITY_TYPES = {
   'eligibility-sections': 'examEligibilitySection', 'pattern-stages': 'examPatternStage', 'pattern-sections': 'examPatternSection',
   'syllabus-stages': 'examSyllabusStage', 'syllabus-subjects': 'examSyllabusSubject', papers: 'previousYearPaper',
   'exam-resources': 'examResource', faqs: 'faq', classes: 'class', 'class-subjects': 'classSubject', 'how-it-works': 'howItWorksStep',
-  series: 'series', 'free-tests': 'freeTest', passes: 'pass', pages: 'page', 'contact-messages': 'contactMessage',
+  series: 'series', 'free-tests': 'freeTest', passes: 'pass', courses: 'course', faculty: 'faculty', coupons: 'coupon', pages: 'page', 'contact-messages': 'contactMessage',
 }
 export const entityTypeOf = (resourceKey) => ENTITY_TYPES[resourceKey]
 export const resourceOfEntity = (entityType) => Object.entries(ENTITY_TYPES).find(([, t]) => t === entityType)?.[0]

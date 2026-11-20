@@ -1,12 +1,10 @@
-import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/auth/useAuth'
 import { useEffect, useState } from 'react'
-import { ArrowRight, ChevronDown, Circle, LayoutDashboard, X } from 'lucide-react'
+import { ArrowRight, ChevronDown, Circle, X } from 'lucide-react'
 import Logo from '@/components/common/Logo'
 import SmartLink from '@/components/common/SmartLink'
 import { iconFor } from '@/lib/icons'
 import { resolveGlobalHref } from '@/lib/links'
-import { isStaff } from '@/services/authService'
 import { examHref } from './CategoryMega'
 
 function Accordion({ id, label, badge, icon: Icon, open, onToggle, children }) {
@@ -36,7 +34,7 @@ function Accordion({ id, label, badge, icon: Icon, open, onToggle, children }) {
 const subLink = 'flex items-center gap-2.5 rounded-md px-2 py-2 text-sm text-slate-600 hover:bg-primary-50 hover:text-primary-800 focus-visible:outline-2 focus-visible:outline-accent-600'
 
 export default function MobileDrawer({ layout, navItems, onClose }) {
-  const { user, isLoggedIn, logout, openLogin } = useAuth()
+  const { isLoggedIn, logout, openLogin } = useAuth()
   const header = layout?.site.header
   const [openId, setOpenId] = useState(null)
   const [openCat, setOpenCat] = useState(null)
@@ -173,11 +171,7 @@ export default function MobileDrawer({ layout, navItems, onClose }) {
         </nav>
 
         <div className="grid shrink-0 grid-cols-2 gap-3 border-t border-slate-200 p-4">
-          {isStaff(user) && (
-            <Link to="/admin" onClick={onClose} className="col-span-2 flex items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-semibold text-primary-800 ring-1 ring-inset ring-primary-200 hover:bg-primary-50">
-              <LayoutDashboard className="size-4" aria-hidden="true" /> Admin panel
-            </Link>
-          )}
+          {/* "Admin panel" link hidden for now; the admin panel is still at /admin */}
           {isLoggedIn ? (
             <button type="button" onClick={() => { logout(); onClose() }} className="rounded-md px-4 py-3 text-center text-sm font-semibold text-primary-800 ring-1 ring-inset ring-slate-300 hover:bg-primary-50">Logout</button>
           ) : (

@@ -87,3 +87,18 @@ export function resolveGlobalHref(href) {
   if (GLOBAL_PAGES[h]) return GLOBAL_PAGES[h]
   return HOME_SECTIONS.has(h.slice(1)) ? `/${h}` : null
 }
+
+/** An outside address ("https://..."): admin redirect links. Site paths and anchors are not. */
+export const isExternalHref = (href) => typeof href === 'string' && /^https?:\/\//i.test(href)
+
+/**
+ * A page under an exam's link ("/previous-year-papers", "#test-series"). When the exam has a redirect link to
+ * another site, that link is used as it is.
+ */
+export const subHref = (href, suffix) => (!href ? null : isExternalHref(href) ? href : `${href}${suffix}`)
+
+/** Opens an API href from code: outside links in a new tab, site paths with the router. */
+export function openHref(navigate, href) {
+  if (isExternalHref(href)) window.open(href, '_blank', 'noopener,noreferrer')
+  else navigate(href)
+}

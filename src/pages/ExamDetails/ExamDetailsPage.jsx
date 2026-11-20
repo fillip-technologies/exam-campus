@@ -9,8 +9,6 @@ import TestSeriesSection from '@/components/hub/TestSeriesSection'
 import CoursesSection from '@/components/hub/CoursesSection'
 import FacultySection from '@/components/hub/FacultySection'
 import MobileEnrollBar from '@/components/hub/MobileEnrollBar'
-import { sampleCourses, sampleFaculty } from '@/data/sampleCourses'
-import { samplePapers } from '@/data/samplePapers'
 import LatestUpdates from './components/LatestUpdates'
 import ImportantDates from './components/ImportantDates'
 import EligibilitySection from './components/EligibilitySection'
@@ -57,10 +55,10 @@ export default function ExamDetailsPage() {
 
   const { name } = exam
   const primarySeries = exam.testSeries?.find((s) => s.isPrimary) ?? exam.testSeries?.[0]
-  // Until the API sends `courses` / `faculty`, dev builds show sample data (src/data/sampleCourses.js); production shows none.
-  const courses = exam.courses ?? (import.meta.env.DEV ? sampleCourses(name) : [])
-  const faculty = exam.faculty ?? (import.meta.env.DEV ? sampleFaculty : [])
-  const papers = exam.previousYearPapers?.length ? exam.previousYearPapers : import.meta.env.DEV ? samplePapers() : []
+  // Courses, faculty and previous year papers come from the admin panel (Exams → Courses / Faculty / PYQs).
+  const courses = exam.courses ?? []
+  const faculty = exam.faculty ?? []
+  const papers = exam.previousYearPapers ?? []
   const primaryCourse = courses.find((c) => c.isPrimary) ?? courses[0]
   const hasFreeTests = exam.freeTests?.length > 0
 

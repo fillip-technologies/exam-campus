@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, BookOpen, Inbox, ShoppingCart, Smartphone, Users } from 'lucide-react'
+import { ArrowRight, BookOpen, Inbox, ShoppingCart, Users } from 'lucide-react'
 import { useAuth } from '@/context/auth/useAuth'
 import { useDashboard } from '../api'
 import { Card, ErrorBox, formatDateTime, PageHeader, Spinner, StatusBadge } from '../ui'
@@ -42,9 +42,8 @@ export default function Dashboard() {
         <ErrorBox error={q.error} onRetry={() => q.refetch()} />
       ) : (
         <div className="space-y-6">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Stat icon={Users} label="Students" value={q.data.students} hint={`${q.data.newStudents7d} new this week`} to="/admin/users" />
-            <Stat icon={Smartphone} label="App waitlist" value={q.data.waitlist} to="/admin/waitlist" />
             <Stat icon={Inbox} label="New messages" value={q.data.newMessages} to="/admin/r/contact-messages" />
             <Stat icon={ShoppingCart} label="Orders today" value={q.data.ordersToday} hint={`₹${(q.data.revenueTodayPaise / 100).toLocaleString('en-IN')} revenue`} />
             <Stat icon={BookOpen} label="Live exam pages" value={q.data.examsByStatus?.PUBLISHED ?? 0} hint={`${q.data.examsByStatus?.COMING_SOON ?? 0} coming soon`} to="/admin/r/exams" />

@@ -1,3 +1,4 @@
+import { subHref } from '@/lib/links'
 import ExamMegaMenu from './ExamMegaMenu'
 
 const copy = {
@@ -16,7 +17,7 @@ const copy = {
 }
 
 /** Where an exam in a category menu goes: its hub, or the exam's previous year papers page for the PYQ menu. */
-export const examHref = (exam, menu) => (exam.href ? (menu === 'PYQ' ? `${exam.href}/previous-year-papers` : exam.href) : null)
+export const examHref = (exam, menu) => (menu === 'PYQ' ? subHref(exam.href, '/previous-year-papers') : (exam.href ?? null))
 
 /** Exam-category mega menus (Competitive Exams, PYQs): filled from the exam catalogue by the API. */
 export default function CategoryMega({ id, item, onNavigate }) {

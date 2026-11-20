@@ -167,6 +167,84 @@ function MediaField({ field, value, onChange, id, invalid }) {
   )
 }
 
+/** Several images (a course's carousel): upload or pick each from the media library, reorder, remove. */
+function ImageListField({ value, onChange, id }) {
+  const [open, setOpen] = useState(false)
+  const [url, setUrl] = useState('')
+  const list = value ?? []
+  const move = (i, d) => {
+    const next = [...list]
+    ;[next[i], next[i + d]] = [next[i + d], next[i]]
+    onChange(next)
+  }
+  const addUrl = () => {
+    const u = url.trim()
+    if (!u) return
+    onChange([...list, u])
+    setUrl('')
+  }
+  return (
+    <div className="space-y-2">
+      {list.length > 0 && (
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {list.map((src, i) => (
+            <li key={`${src}-${i}`} className="overflow-hidden rounded-md border border-slate-200 bg-white">
+              <img src={src} alt="" className="aspect-video w-full bg-slate-50 object-contain" />
+              <div className="flex items-center justify-between border-t border-slate-100 px-1 py-1">
+                <span className="px-1 text-xs text-slate-500">{i + 1}</span>
+                <span className="flex">
+                  <Button variant="ghost" size="icon" aria-label="Move left" disabled={i === 0} onClick={() => move(i, -1)}>
+                    <ArrowUp className="size-3.5 -rotate-90" />
+                  </Button>
+                  <Button variant="ghost" size="icon" aria-label="Move right" disabled={i === list.length - 1} onClick={() => move(i, 1)}>
+                    <ArrowDown className="size-3.5 -rotate-90" />
+                  </Button>
+                  <Button variant="dangerGhost" size="icon" aria-label="Remove image" onClick={() => onChange(list.filter((_, j) => j !== i))}>
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="flex gap-2">
+        <input
+          id={id}
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              addUrl()
+            }
+          }}
+          placeholder="Paste an image URL, or upload →"
+          className={inputCls}
+        />
+        {url.trim() && (
+          <Button icon={Plus} onClick={addUrl}>
+            Add
+          </Button>
+        )}
+        <Button icon={ImagePlus} onClick={() => setOpen(true)}>
+          Upload / choose
+        </Button>
+      </div>
+      {open && (
+        <Modal title="Media library" size="lg" onClose={() => setOpen(false)}>
+          <MediaLibrary
+            onPick={(asset) => {
+              onChange([...list, asset.url])
+              setOpen(false)
+            }}
+          />
+        </Modal>
+      )}
+    </div>
+  )
+}
+
 /** Icon from the site's registry (lib/icons.js). */
 function IconField({ value, onChange, id }) {
   const [open, setOpen] = useState(false)
@@ -487,6 +565,9 @@ export function FieldInput({ field, values, setValues, errors, rowId }) {
       break
     case 'stringList':
       input = <StringListField id={id} value={value} onChange={onChange} />
+      break
+    case 'imageList':
+      input = <ImageListField id={id} value={value} onChange={onChange} />
       break
     case 'labelValue':
       input = <LabelValueField value={value} onChange={onChange} />

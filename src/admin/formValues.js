@@ -22,6 +22,7 @@ const emptyFor = (field) => {
       return false
     case 'relations':
     case 'stringList':
+    case 'imageList':
     case 'labelValue':
     case 'blocks':
       return []
@@ -90,6 +91,7 @@ export function toPayload(fields, values) {
         out[f.key] = val === '' ? null : val
         break
       case 'stringList':
+      case 'imageList':
         out[f.key] = (val ?? []).map((s) => s.trim()).filter(Boolean)
         break
       case 'labelValue':

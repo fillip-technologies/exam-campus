@@ -21,7 +21,7 @@ export default function EnrollPage() {
 
   // Direct visits while logged out get the login popup straight away.
   useEffect(() => {
-    if (product && ready && !isLoggedIn) openLogin({ reason: `Please log in to enroll in ${product.title}.` })
+    if (product && !product.redirectUrl && ready && !isLoggedIn) openLogin({ reason: `Please log in to enroll in ${product.title}.` })
   }, [product, ready, isLoggedIn, openLogin])
 
   const state = pageState(query)

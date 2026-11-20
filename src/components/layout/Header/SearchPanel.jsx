@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
 import SearchCombobox from '@/components/common/SearchCombobox'
 import { searchNow } from '@/api/public'
+import { openHref } from '@/lib/links'
 
 /** Expands beneath the main bar when the search icon is toggled. Trending chips open the best match. */
 export default function SearchPanel({ id, suggestions = [], onClose }) {
@@ -12,7 +13,7 @@ export default function SearchPanel({ id, suggestions = [], onClose }) {
   const openSuggestion = async (term) => {
     const hit = (await searchNow(term).catch(() => null))?.results?.find((r) => r.href)
     if (hit) {
-      navigate(hit.href)
+      openHref(navigate, hit.href)
       onClose()
     } else setMissing(term)
   }

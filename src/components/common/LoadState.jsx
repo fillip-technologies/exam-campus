@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiError } from '@/api/client'
 import NotFoundPage from '@/pages/NotFound/NotFoundPage'
+import { isExternalHref } from '@/lib/links'
 
 /** Placeholder shown while a page's data loads. */
 export function PageLoader({ label = 'Loading…' }) {
@@ -40,7 +41,29 @@ function Redirect({ to }) {
 }
 
 /**
- * Standard handling for a page query: loader, 404 page (or slug redirect), error with retry.
+ * The item has a redirect link (admin panel): leave for it instead of showing our page. Another site replaces
+ * this history entry, so Back returns to where the visitor came from; a site path uses the router.
+ */
+function AwayRedirect({ to }) {
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (isExternalHref(to)) window.location.replace(to)
+    else navigate(to, { replace: true })
+  }, [navigate, to])
+  return (
+    <div className="mx-auto grid min-h-[50vh] w-full place-items-center px-4 text-center">
+      <div>
+        <PageLoader label="Taking you there…" />
+        <a href={to} className="text-sm font-semibold text-primary-700 underline underline-offset-4">
+          Continue if nothing happens
+        </a>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Standard handling for a page query: loader, 404 page (or slug redirect), redirect link, error with retry.
  * Returns null when the data is ready, so callers can write `return pageState(query) ?? <Page />`.
  */
 export function pageState(query) {
@@ -50,5 +73,6 @@ export function pageState(query) {
     if (err instanceof ApiError && err.status === 404) return err.redirect ? <Redirect to={err.redirect} /> : <NotFoundPage />
     return <LoadError error={err} onRetry={() => query.refetch()} className="my-16" />
   }
+  if (query.data?.redirectUrl) return <AwayRedirect to={query.data.redirectUrl} />
   return null
 }

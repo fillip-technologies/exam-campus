@@ -1,3 +1,4 @@
+import SmartLink from '@/components/common/SmartLink'
 import EnrollButton from '@/components/common/EnrollButton'
 import { ArrowRight, BarChart3, ClipboardCheck, History, ListChecks, Timer } from 'lucide-react'
 import { Poster } from '@/components/common/CourseCard'
@@ -40,9 +41,9 @@ function SeriesCard({ series, examName, org, freeTestCount, toneIndex }) {
       coupon={series.coupon}
       actions={[
         detailsUrl && (
-          <a key="details" href={detailsUrl} className={secondaryAction}>
+          <SmartLink key="details" href={detailsUrl} className={secondaryAction}>
             View Details
-          </a>
+          </SmartLink>
         ),
         <EnrollButton key="enroll" to={enrollUrl} what={title} className={primaryAction}>
           Enroll Now

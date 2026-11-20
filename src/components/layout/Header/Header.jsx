@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/auth/useAuth'
-import { ArrowRight, LayoutDashboard, Menu, Search, X } from 'lucide-react'
+import { ArrowRight, Menu, Search, X } from 'lucide-react'
 import AnnouncementBar from './AnnouncementBar'
 import Logo from '@/components/common/Logo'
 import NavItem from './NavItem'
@@ -15,13 +15,12 @@ import SearchPanel from './SearchPanel'
 import SearchCombobox from '@/components/common/SearchCombobox'
 import MobileDrawer from './MobileDrawer'
 import { useLayout } from '@/api/public'
-import { isStaff } from '@/services/authService'
 
 export default function Header() {
   const [openId, setOpenId] = useState(null)
   // The active nav item follows the current page: Academic hubs vs Exam hubs.
   const { pathname } = useLocation()
-  const { user, isLoggedIn, logout, openLogin } = useAuth()
+  const { isLoggedIn, logout, openLogin } = useAuth()
   const { data: layout } = useLayout()
   // cleanNav: dropdown items without a page are left out (see src/lib/links.js)
   const navItems = cleanNav(layout?.nav).map((n) => ({ ...n, icon: iconFor(n.icon) }))
@@ -89,7 +88,7 @@ export default function Header() {
       onMouseEnter={cancelClose}
       onMouseLeave={scheduleClose}
     >
-      <AnnouncementBar announcement={layout?.announcement} />
+      <AnnouncementBar announcements={layout?.announcements} />
 
       <div
         className={`border-b bg-white/95 backdrop-blur transition-shadow duration-200 ${
@@ -152,16 +151,7 @@ export default function Header() {
             </button>
             {isLoggedIn ? (
               <div className="hidden items-center gap-2 sm:flex">
-                {isStaff(user) && (
-                  <Link
-                    to="/admin"
-                    className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold text-primary-800 ring-1 ring-inset ring-primary-200 transition-colors hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-accent-600"
-                  >
-                    <LayoutDashboard className="size-4" aria-hidden="true" />
-                    Admin
-                  </Link>
-                )}
-                <span className="hidden max-w-[8rem] truncate text-sm font-semibold text-primary-800 2xl:inline">Hi, {user.name.split(" ")[0]}</span>
+                {/* Admin link and "Hi, <name>" hidden for now; the admin panel is still at /admin */}
                 <button
                   type="button"
                   onClick={logout}

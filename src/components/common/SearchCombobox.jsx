@@ -2,6 +2,7 @@ import { useDeferredValue, useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { searchNow, useLayout, useSearch } from '@/api/public'
+import { openHref } from '@/lib/links'
 
 /**
  * Exam / class search with suggestions from GET /public/search (names, aliases, short words like "PO").
@@ -39,7 +40,7 @@ export default function SearchCombobox({ size = 'lg', onNavigate, placeholder, a
 
   const go = (path) => {
     reset()
-    navigate(path)
+    openHref(navigate, path)
     onNavigate?.()
   }
 

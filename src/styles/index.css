@@ -86,3 +86,21 @@
   &::-webkit-scrollbar { display: none; }
 }
 
+
+/* Announcement bar: the track holds two copies of the row and moves left by one copy, then repeats. */
+@keyframes announcement-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.announcement-track {
+  animation: announcement-scroll var(--marquee-duration, 30s) linear infinite;
+}
+.announcement-marquee:hover .announcement-track,
+.announcement-marquee:focus-within .announcement-track {
+  animation-play-state: paused;
+}
+/* Without motion the row stands still and can be scrolled sideways by hand instead. */
+@media (prefers-reduced-motion: reduce) {
+  .announcement-track { animation: none; }
+  .announcement-marquee { overflow-x: auto; scrollbar-width: none; }
+}

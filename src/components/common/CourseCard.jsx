@@ -3,6 +3,7 @@ import EnrollButton from '@/components/common/EnrollButton'
 import ProductCard, { primaryAction, secondaryAction } from '@/components/hub/ProductCard'
 import ExamLogo from './ExamLogo'
 import SmartLink from './SmartLink'
+import { subHref } from '@/lib/links'
 
 /** Decorative strip on generated posters (cards without artwork). */
 const defaultPosterIcons = [
@@ -85,7 +86,7 @@ export default function CourseCard({ product, toneIndex = 0 }) {
       coupon={product.coupon}
       actions={[
         examHref && (
-          <SmartLink key="details" href={`${examHref}#test-series`} className={secondaryAction}>
+          <SmartLink key="details" href={subHref(examHref, '#test-series')} className={secondaryAction}>
             View Details
           </SmartLink>
         ),

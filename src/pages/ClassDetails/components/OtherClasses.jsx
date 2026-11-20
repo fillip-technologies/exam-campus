@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import SmartLink from '@/components/common/SmartLink'
 import { ArrowRight, LayoutGrid } from 'lucide-react'
 import SectionShell from '@/components/hub/SectionShell'
 
@@ -31,9 +31,9 @@ export default function OtherClasses({ classes = [] }) {
           return (
             <li key={c.slug}>
               {live ? (
-                <Link to={c.href} className={`${cls} hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600`}>
+                <SmartLink href={c.href} className={`${cls} hover:border-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600`}>
                   {inner}
-                </Link>
+                </SmartLink>
               ) : (
                 <div className={cls}>{inner}</div>
               )}

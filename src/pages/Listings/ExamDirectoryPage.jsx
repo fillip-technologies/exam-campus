@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import SmartLink from '@/components/common/SmartLink'
+import { subHref } from '@/lib/links'
 import { ArrowRight, Circle, Search } from 'lucide-react'
 import { useLayout } from '@/api/public'
 import ExamLogo from '@/components/common/ExamLogo'
@@ -24,7 +25,7 @@ const MODES = {
     title: 'Previous Year Question Papers',
     intro: 'Pick your exam to see its previous year papers, year by year, for Prelims and Mains.',
     meta: { title: 'Previous Year Question Papers for All Exams | ExamCampus', description: 'Year-wise previous year question papers for Banking, SSC, Railway, Teaching, UPSC and other exams. View, download or attempt online.' },
-    linkFor: (e) => (e.href ? `${e.href}/previous-year-papers` : null),
+    linkFor: (e) => subHref(e.href, '/previous-year-papers'),
     action: 'View papers',
   },
 }
@@ -120,8 +121,8 @@ export default function ExamDirectoryPage({ mode = 'exams' }) {
                   return (
                     <li key={e.slug}>
                       {to ? (
-                        <Link
-                          to={to}
+                        <SmartLink
+                          href={to}
                           className="group flex h-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-3.5 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-900/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
                         >
                           <ExamLogo org={e.org} name={e.name} className="size-11" />
@@ -132,7 +133,7 @@ export default function ExamDirectoryPage({ mode = 'exams' }) {
                               <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                             </span>
                           </span>
-                        </Link>
+                        </SmartLink>
                       ) : (
                         <div className="flex h-full items-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 p-3.5" title="Coming soon">
                           <ExamLogo org={e.org} name={e.name} className="size-11 opacity-70" />

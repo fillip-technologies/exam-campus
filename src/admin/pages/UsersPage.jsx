@@ -9,7 +9,7 @@ import { Badge, Button, Card, Empty, ErrorBox, formatDateTime, inputCls, Modal, 
 
 const ROLES = ['STUDENT', 'SUPPORT', 'EDITOR', 'ADMIN', 'SUPER_ADMIN']
 const ROLE_HELP = {
-  SUPPORT: 'Users, messages, waitlist; reads content',
+  SUPPORT: 'Users and messages; reads content',
   EDITOR: 'Edits all content',
   ADMIN: 'Content + settings, pass, students',
   SUPER_ADMIN: 'Everything, including staff accounts',
